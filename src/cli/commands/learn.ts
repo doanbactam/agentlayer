@@ -13,10 +13,10 @@ interface LearnOptions {
 
 export async function learn(opts: LearnOptions): Promise<void> {
   const root = process.cwd()
-  const storePath = join(root, ".agentlayer", "context.db")
+  const storePath = join(root, ".agentmind", "context.db")
 
   if (!existsSync(storePath)) {
-    console.log(chalk.yellow("No agentlayer store found. Run `agentlayer init` first."))
+    console.log(chalk.yellow("No agentmind store found. Run `agentmind init` first."))
     return
   }
 
@@ -49,7 +49,7 @@ export async function learn(opts: LearnOptions): Promise<void> {
     const totalBehaviors = (store.getDb().query("SELECT COUNT(*) as c FROM behavior_log").get() as { c: number }).c
 
     console.log()
-    console.log(chalk.bold("  agentlayer learn"))
+    console.log(chalk.bold("  agentmind learn"))
     console.log(chalk.gray("  " + "\u2500".repeat(54)))
     console.log()
     console.log(chalk.dim(`  Analyzing ${totalBehaviors} behavior entries...`))
@@ -96,8 +96,8 @@ export async function learn(opts: LearnOptions): Promise<void> {
       const applied = applyRules(store, toApply)
       console.log(chalk.green(`  Applied ${applied} learned rule${applied === 1 ? "" : "s"} to store.`))
     } else {
-      console.log(chalk.dim("  Run `agentlayer learn --apply` to add high-confidence rules."))
-      console.log(chalk.dim("  Run `agentlayer learn --apply --force` to add all rules."))
+      console.log(chalk.dim("  Run `agentmind learn --apply` to add high-confidence rules."))
+      console.log(chalk.dim("  Run `agentmind learn --apply --force` to add all rules."))
     }
 
     console.log()

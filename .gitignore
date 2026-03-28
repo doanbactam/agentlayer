@@ -1,4 +1,4 @@
 node_modules
 dist
-.agentlayer/context.db
+.agentmind/context.db
 *.js.map

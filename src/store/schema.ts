@@ -16,7 +16,7 @@ export class ContextStore {
   private dbPath: string
 
   constructor(projectRoot: string) {
-    this.dbPath = join(projectRoot, ".agentlayer", "context.db")
+    this.dbPath = join(projectRoot, ".agentmind", "context.db")
     mkdirSync(dirname(this.dbPath), { recursive: true })
     this.db = new SqliteDatabase(this.dbPath)
     this.db.pragma("journal_mode = WAL")

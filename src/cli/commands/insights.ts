@@ -33,10 +33,10 @@ interface InsightResult {
 
 export async function insights(opts: { json?: boolean }): Promise<void> {
   const root = process.cwd()
-  const storePath = join(root, ".agentlayer", "context.db")
+  const storePath = join(root, ".agentmind", "context.db")
 
   if (!existsSync(storePath)) {
-    console.log(chalk.yellow("No agentlayer store found. Run `agentlayer init` first."))
+    console.log(chalk.yellow("No agentmind store found. Run `agentmind init` first."))
     return
   }
 
@@ -125,7 +125,7 @@ function renderDashboard(r: InsightResult): void {
   const shorten = (s: string, max = 44) => s.length <= max ? s : "..." + s.slice(-(max - 3))
 
   console.log()
-  console.log(chalk.bold("  agentlayer insights"))
+  console.log(chalk.bold("  agentmind insights"))
   console.log(chalk.gray("  " + "\u2500".repeat(50)))
   console.log()
 

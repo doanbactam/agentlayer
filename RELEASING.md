@@ -1,4 +1,4 @@
-# Releasing agentlayer
+# Releasing @iamsyr/agentmind
 
 ## Preconditions
 
@@ -29,7 +29,7 @@ This runs:
 5. Publish:
 
 ```bash
-npm publish
+npm publish --access public
 ```
 
 ## Post-release verification
@@ -37,6 +37,6 @@ npm publish
 Verify a clean install works:
 
 ```bash
-npm install -g agentlayer
-agentlayer --help
+npm install -g @iamsyr/agentmind
+agentmind --help
 ```

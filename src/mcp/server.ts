@@ -61,7 +61,7 @@ const TOOLS = [
   {
     name: "find_gaps",
     description:
-      "Find files that lack context annotations or rules. Helps identify where agentlayer coverage is missing.",
+      "Find files that lack context annotations or rules. Helps identify where agentmind coverage is missing.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -120,7 +120,7 @@ export function startServer(projectRoot: string): void {
   }
 
   rl.on("line", handle)
-  log("agentlayer MCP server ready (stdio)")
+  log("agentmind MCP server ready (stdio)")
 }
 
 // ── Dispatch ───────────────────────────────────────────
@@ -139,7 +139,7 @@ function dispatch(req: JsonRpcRequest, store: ContextStore, projectRoot: string)
       return reply({
         protocolVersion: "2024-11-05",
         capabilities: { tools: {} },
-        serverInfo: { name: "agentlayer", version: "0.1.0" },
+        serverInfo: { name: "agentmind", version: "0.1.0" },
       })
 
     case "ping":
@@ -215,9 +215,9 @@ function handleGetHealth(store: ContextStore): string {
     "",
   ]
 
-  if (h.staleEntries > 0) lines.push("- Consider running `agentlayer scan` to refresh stale entries.")
+  if (h.staleEntries > 0) lines.push("- Consider running `agentmind scan` to refresh stale entries.")
   if (orphans > 0) lines.push("- Some rules reference files with no annotations — use `find_gaps` to see them.")
-  if (h.entries === 0) lines.push("- No context stored yet. Run `agentlayer scan` and annotate key files.")
+  if (h.entries === 0) lines.push("- No context stored yet. Run `agentmind scan` and annotate key files.")
 
   return lines.join("\n")
 }
@@ -303,7 +303,7 @@ function handleFindGaps(args: Record<string, unknown>, store: ContextStore, proj
 
 function formatContext(entries: ContextEntry[]): string {
   const lines: string[] = [
-    "# Agentlayer Context",
+    "# Agentmind Context",
     "",
     "Relevant context from the project knowledge base:",
     "",
@@ -350,16 +350,16 @@ function formatContext(entries: ContextEntry[]): string {
 // ── Helpers ────────────────────────────────────────────
 
 function ensureStore(projectRoot: string): ContextStore | null {
-  const dbPath = path.join(projectRoot, ".agentlayer", "context.db")
+  const dbPath = path.join(projectRoot, ".agentmind", "context.db")
   if (!fs.existsSync(dbPath)) {
-    log(`No .agentlayer/context.db found in ${projectRoot}. Run 'agentlayer init && agentlayer scan' first.`)
+    log(`No .agentmind/context.db found in ${projectRoot}. Run 'agentmind init && agentmind scan' first.`)
     return null
   }
   return new ContextStore(projectRoot)
 }
 
 function log(msg: string): void {
-  process.stderr.write(`[agentlayer] ${msg}\n`)
+  process.stderr.write(`[agentmind] ${msg}\n`)
 }
 
 const SOURCE_EXTS = new Set([

@@ -32,8 +32,8 @@ export class AgentBridge {
   private tmpPath: string
 
   constructor(projectRoot: string) {
-    this.statePath = join(projectRoot, ".agentlayer", "agent-state.json")
-    this.tmpPath = join(projectRoot, ".agentlayer", "agent-state.tmp")
+    this.statePath = join(projectRoot, ".agentmind", "agent-state.json")
+    this.tmpPath = join(projectRoot, ".agentmind", "agent-state.tmp")
   }
 
   register(agentId: string, tool: string): void {
@@ -119,7 +119,7 @@ export class AgentBridge {
       return JSON.parse(raw) as BridgeState
     } catch (err) {
       console.warn(
-        `[agentlayer] corrupt state file (${this.statePath}), treating as empty. Fix or delete the file.`
+        `[agentmind] corrupt state file (${this.statePath}), treating as empty. Fix or delete the file.`
       )
       return EMPTY
     }

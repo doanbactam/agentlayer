@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url"
 import type { HookConfig } from "../types/index.js"
 import { generatePreToolUseHook, generatePostToolUseHook, generatePostCommitHook } from "./template.js"
 
-const HOOKS_DIR = ".agentlayer/hooks"
+const HOOKS_DIR = ".agentmind/hooks"
 const CODEX_CONFIG_DIR = ".codex"
 const CODEX_CONFIG_FILE = "config.json"
 
@@ -17,11 +17,11 @@ interface CodexConfig {
   [key: string]: unknown
 }
 
-function getAgentLayerBin(): string {
-  if (process.env.AGENTLAYER_DEV) {
-    return "agentlayer"
+function getAgentMindBin(): string {
+  if (process.env.AGENTMIND_DEV) {
+    return "agentmind"
   }
-  return "agentlayer"
+  return "agentmind"
 }
 
 function getHookScript(name: string): string {
@@ -32,12 +32,12 @@ function getNodeHookCommand(name: string): string {
   return `node ${getHookScript(name)}`
 }
 
-function writeAgentLayerConfig(projectRoot: string): void {
+function writeAgentMindConfig(projectRoot: string): void {
   const cliEntry = path.resolve(
     path.dirname(fileURLToPath(import.meta.url)),
     "../cli/index.js",
   )
-  const configPath = path.join(projectRoot, ".agentlayer", "config.json")
+  const configPath = path.join(projectRoot, ".agentmind", "config.json")
   const config = {
     command: [process.execPath, cliEntry],
   }
@@ -46,7 +46,7 @@ function writeAgentLayerConfig(projectRoot: string): void {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 }
 
-export function getCodexHookConfig(agentLayerBin: string): HookConfig[] {
+export function getCodexHookConfig(agentMindBin: string): HookConfig[] {
   return [
     {
       agent: "codex",
@@ -63,7 +63,7 @@ export function getCodexHookConfig(agentLayerBin: string): HookConfig[] {
   ]
 }
 
-export function installCodexHooks(projectRoot: string, agentLayerBin?: string): void {
+export function installCodexHooks(projectRoot: string, agentMindBin?: string): void {
   const hooksDir = path.join(projectRoot, HOOKS_DIR)
   const codexDir = path.join(projectRoot, CODEX_CONFIG_DIR)
 
@@ -74,7 +74,7 @@ export function installCodexHooks(projectRoot: string, agentLayerBin?: string): 
     fs.mkdirSync(codexDir, { recursive: true })
   }
 
-  writeAgentLayerConfig(projectRoot)
+  writeAgentMindConfig(projectRoot)
 
   fs.writeFileSync(path.join(hooksDir, "pre-tool-use.mjs"), generatePreToolUseHook())
   fs.writeFileSync(path.join(hooksDir, "post-tool-use.mjs"), generatePostToolUseHook())

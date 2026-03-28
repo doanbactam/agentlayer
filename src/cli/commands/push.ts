@@ -8,11 +8,11 @@ import { isGitRepo } from "../utils.js"
 
 export async function push(opts: { message?: string; remote?: boolean }): Promise<void> {
   const root = process.cwd()
-  const dbPath = join(root, ".agentlayer", "context.db")
-  const jsonlPath = join(root, ".agentlayer", "context.jsonl")
+  const dbPath = join(root, ".agentmind", "context.db")
+  const jsonlPath = join(root, ".agentmind", "context.jsonl")
 
   if (!existsSync(dbPath)) {
-    console.log(chalk.yellow("No agentlayer store found. Run `agentlayer init` first."))
+    console.log(chalk.yellow("No agentmind store found. Run `agentmind init` first."))
     return
   }
 
@@ -38,7 +38,7 @@ export async function push(opts: { message?: string; remote?: boolean }): Promis
   writeFileSync(jsonlPath, after, "utf-8")
 
   const lineCount = after.trim().split("\n").filter(Boolean).length
-  console.log(chalk.green(`Pushed ${lineCount} entries to .agentlayer/context.jsonl`))
+  console.log(chalk.green(`Pushed ${lineCount} entries to .agentmind/context.jsonl`))
 
   if (!isGitRepo(root)) {
     console.log(chalk.dim("Not a git repository. JSONL export is local only."))
@@ -46,14 +46,14 @@ export async function push(opts: { message?: string; remote?: boolean }): Promis
   }
 
   try {
-    const status = execSync("git status --porcelain .agentlayer/context.jsonl", { cwd: root, encoding: "utf-8" }).trim()
+    const status = execSync("git status --porcelain .agentmind/context.jsonl", { cwd: root, encoding: "utf-8" }).trim()
     if (!status) {
       console.log(chalk.green("Context is already in sync."))
       return
     }
 
-    const msg = opts.message ?? "agentlayer: update context"
-    execFileSync("git", ["add", ".agentlayer/context.jsonl"], { cwd: root, stdio: "pipe" })
+    const msg = opts.message ?? "agentmind: update context"
+    execFileSync("git", ["add", ".agentmind/context.jsonl"], { cwd: root, stdio: "pipe" })
     execFileSync("git", ["commit", "-m", msg], { cwd: root, stdio: "pipe" })
     console.log(chalk.dim(`Committed as: "${msg}"`))
   } catch (err) {

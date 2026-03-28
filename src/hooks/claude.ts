@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url"
 import type { HookConfig } from "../types/index.js"
 import { generatePreToolUseHook, generatePostToolUseHook, generatePostCommitHook } from "./template.js"
 
-const HOOKS_DIR = ".agentlayer/hooks"
+const HOOKS_DIR = ".agentmind/hooks"
 const SETTINGS_FILE = ".claude/settings.local.json"
 const HOOK_MARKERS = ["pre-tool-use.mjs", "post-tool-use.mjs", "post-commit.mjs"]
 
@@ -22,11 +22,11 @@ interface ClaudeSettings {
   [key: string]: unknown
 }
 
-function getAgentLayerBin(): string {
-  if (process.env.AGENTLAYER_DEV) {
-    return "agentlayer"
+function getAgentMindBin(): string {
+  if (process.env.AGENTMIND_DEV) {
+    return "agentmind"
   }
-  return "agentlayer"
+  return "agentmind"
 }
 
 function getHookScript(name: string): string {
@@ -37,12 +37,12 @@ function getNodeHookCommand(name: string): string {
   return `node ${getHookScript(name)}`
 }
 
-function writeAgentLayerConfig(projectRoot: string): void {
+function writeAgentMindConfig(projectRoot: string): void {
   const cliEntry = path.resolve(
     path.dirname(fileURLToPath(import.meta.url)),
     "../cli/index.js",
   )
-  const configPath = path.join(projectRoot, ".agentlayer", "config.json")
+  const configPath = path.join(projectRoot, ".agentmind", "config.json")
   const config = {
     command: [process.execPath, cliEntry],
   }
@@ -51,7 +51,7 @@ function writeAgentLayerConfig(projectRoot: string): void {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 }
 
-export function getClaudeHookConfig(agentLayerBin: string): HookConfig[] {
+export function getClaudeHookConfig(agentMindBin: string): HookConfig[] {
   return [
     {
       agent: "claude",
@@ -74,14 +74,14 @@ export function getClaudeHookConfig(agentLayerBin: string): HookConfig[] {
   ]
 }
 
-export function installClaudeHooks(projectRoot: string, agentLayerBin?: string): void {
+export function installClaudeHooks(projectRoot: string, agentMindBin?: string): void {
   const hooksDir = path.join(projectRoot, HOOKS_DIR)
 
   if (!fs.existsSync(hooksDir)) {
     fs.mkdirSync(hooksDir, { recursive: true })
   }
 
-  writeAgentLayerConfig(projectRoot)
+  writeAgentMindConfig(projectRoot)
 
   fs.writeFileSync(path.join(hooksDir, "pre-tool-use.mjs"), generatePreToolUseHook())
   fs.writeFileSync(path.join(hooksDir, "post-tool-use.mjs"), generatePostToolUseHook())
@@ -182,7 +182,7 @@ export function uninstallClaudeHooks(projectRoot: string): void {
 
   if (settings.hooks.PreToolUse) {
     settings.hooks.PreToolUse = settings.hooks.PreToolUse.filter(
-      (h) => !h.hooks.some((hook) => hook.includes("agentlayer"))
+      (h) => !h.hooks.some((hook) => hook.includes("agentmind"))
       && !h.hooks.some((hook) => hook.includes("pre-tool-use.mjs"))
     )
     if (settings.hooks.PreToolUse.length === 0) {
@@ -192,7 +192,7 @@ export function uninstallClaudeHooks(projectRoot: string): void {
 
   if (settings.hooks.PostToolUse) {
     settings.hooks.PostToolUse = settings.hooks.PostToolUse.filter(
-      (h) => !h.hooks.some((hook) => hook.includes("agentlayer"))
+      (h) => !h.hooks.some((hook) => hook.includes("agentmind"))
       && !h.hooks.some((hook) => hook.includes("post-tool-use.mjs"))
     )
     if (settings.hooks.PostToolUse.length === 0) {
@@ -202,7 +202,7 @@ export function uninstallClaudeHooks(projectRoot: string): void {
 
   if (settings.hooks.PostCommit) {
     settings.hooks.PostCommit = settings.hooks.PostCommit.filter(
-      (h) => !h.hooks.some((hook) => hook.includes("agentlayer"))
+      (h) => !h.hooks.some((hook) => hook.includes("agentmind"))
       && !h.hooks.some((hook) => hook.includes("post-commit.mjs"))
     )
     if (settings.hooks.PostCommit.length === 0) {

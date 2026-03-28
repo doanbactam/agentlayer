@@ -3,8 +3,8 @@ import { createSyncAdapter } from "./types.js"
 export const cursor = createSyncAdapter("cursor", ".cursorrules", (ctx) => {
   const lines: string[] = []
 
-  lines.push("# agentlayer context (auto-generated — do not edit manually)")
-  lines.push("# Run `agentlayer sync --tool cursor` to update")
+  lines.push("# agentmind context (auto-generated — do not edit manually)")
+  lines.push("# Run `agentmind sync --tool cursor` to update")
   lines.push("")
 
   const withRules = ctx.entries.filter(e => e.rules.length > 0)

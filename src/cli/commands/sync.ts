@@ -6,10 +6,10 @@ import { ContextStore } from "../../store/schema.js"
 
 export async function sync(opts: { tool?: string; dryRun?: boolean; remove?: boolean }) {
   const cwd = process.cwd()
-  const dbPath = join(cwd, ".agentlayer", "context.db")
+  const dbPath = join(cwd, ".agentmind", "context.db")
 
   if (!existsSync(dbPath)) {
-    console.error(chalk.red("\n  agentlayer is not initialized. Run `agentlayer init` first.\n"))
+    console.error(chalk.red("\n  agentmind is not initialized. Run `agentmind init` first.\n"))
     process.exit(1)
   }
 
@@ -23,7 +23,7 @@ export async function sync(opts: { tool?: string; dryRun?: boolean; remove?: boo
         continue
       }
       if (!adapter.isInstalled(cwd)) {
-        console.log(chalk.yellow(`  agentlayer context not found in ${adapter.filename}`))
+        console.log(chalk.yellow(`  agentmind context not found in ${adapter.filename}`))
         continue
       }
       adapter.unsync(cwd)
@@ -38,7 +38,7 @@ export async function sync(opts: { tool?: string; dryRun?: boolean; remove?: boo
     const health = store.getHealth()
     if (health.entries === 0) {
       console.error(chalk.yellow("\n  No context entries found in store."))
-      console.error(chalk.gray("  Run `agentlayer scan` to populate the store first.\n"))
+      console.error(chalk.gray("  Run `agentmind scan` to populate the store first.\n"))
       process.exit(1)
     }
 

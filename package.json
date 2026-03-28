@@ -1,9 +1,18 @@
 {
-  "name": "agentlayer",
-  "version": "0.1.0",
+  "name": "@iamsyr/agentmind",
+  "version": "0.1.1",
   "description": "Intelligent context routing for AI coding agents",
   "license": "MIT",
+  "author": "iamsyr",
   "type": "module",
+  "homepage": "https://github.com/doanbactam/agentlayer#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doanbactam/agentlayer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/doanbactam/agentlayer/issues"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -14,7 +23,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "agentlayer": "./dist/cli/index.js"
+    "agentmind": "./dist/cli/index.js"
   },
   "files": [
     "dist",

@@ -8,11 +8,11 @@ import { isGitRepo } from "../utils.js"
 
 export async function pull(opts: { force?: boolean }): Promise<void> {
   const root = process.cwd()
-  const dbPath = join(root, ".agentlayer", "context.db")
-  const jsonlPath = join(root, ".agentlayer", "context.jsonl")
+  const dbPath = join(root, ".agentmind", "context.db")
+  const jsonlPath = join(root, ".agentmind", "context.jsonl")
 
   if (!existsSync(dbPath)) {
-    console.log(chalk.yellow("No agentlayer store found. Run `agentlayer init` first."))
+    console.log(chalk.yellow("No agentmind store found. Run `agentmind init` first."))
     return
   }
 

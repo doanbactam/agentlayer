@@ -32,13 +32,13 @@ export async function templateApply(
   opts: { all?: boolean }
 ): Promise<void> {
   const cwd = process.cwd()
-  const agentlayerDir = path.join(cwd, ".agentlayer")
+  const agentmindDir = path.join(cwd, ".agentmind")
 
-  if (!fs.existsSync(agentlayerDir)) {
+  if (!fs.existsSync(agentmindDir)) {
     console.error(
-      chalk.red("\n  agentlayer is not initialized in this project.")
+      chalk.red("\n  agentmind is not initialized in this project.")
     )
-    console.error(chalk.gray("  Run `agentlayer init` first.\n"))
+    console.error(chalk.gray("  Run `agentmind init` first.\n"))
     process.exit(1)
   }
 
@@ -54,7 +54,7 @@ export async function templateApply(
       )
       console.log(
         chalk.gray(
-          "  Usage: agentlayer template apply <name>\n         agentlayer template apply --all\n"
+          "  Usage: agentmind template apply <name>\n         agentmind template apply --all\n"
         )
       )
       process.exit(1)

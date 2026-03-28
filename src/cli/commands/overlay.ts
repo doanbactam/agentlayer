@@ -28,11 +28,11 @@ interface OverlayOptions {
 
 export async function overlay(opts: OverlayOptions = {}) {
   const cwd = process.cwd()
-  const agentlayerDir = path.join(cwd, ".agentlayer")
+  const agentmindDir = path.join(cwd, ".agentmind")
 
-  if (!fs.existsSync(agentlayerDir)) {
-    console.error(chalk.red("\n  agentlayer is not initialized in this project."))
-    console.error(chalk.gray("  Run `agentlayer init` first.\n"))
+  if (!fs.existsSync(agentmindDir)) {
+    console.error(chalk.red("\n  agentmind is not initialized in this project."))
+    console.error(chalk.gray("  Run `agentmind init` first.\n"))
     process.exit(1)
   }
 
@@ -294,7 +294,7 @@ async function annotateFile(
 
   // Append to JSONL
   try {
-    const jsonlPath = path.join(cwd, ".agentlayer", "context.jsonl")
+    const jsonlPath = path.join(cwd, ".agentmind", "context.jsonl")
     appendJSONL(jsonlPath, {
       id: annotation.id,
       path: gap.path,

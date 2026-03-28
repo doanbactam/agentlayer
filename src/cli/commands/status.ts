@@ -7,16 +7,16 @@ import type { ContextEntry, StoreHealth } from "../../types/index.js"
 
 export async function status() {
   const cwd = process.cwd()
-  const agentlayerDir = path.join(cwd, ".agentlayer")
-  const dbPath = path.join(agentlayerDir, "context.db")
-  const jsonlPath = path.join(agentlayerDir, "context.jsonl")
+  const agentmindDir = path.join(cwd, ".agentmind")
+  const dbPath = path.join(agentmindDir, "context.db")
+  const jsonlPath = path.join(agentmindDir, "context.jsonl")
 
-  if (!fs.existsSync(agentlayerDir)) {
+  if (!fs.existsSync(agentmindDir)) {
     console.error(
-      chalk.red("\n  agentlayer is not initialized in this project.")
+      chalk.red("\n  agentmind is not initialized in this project.")
     )
     console.error(
-      chalk.gray("  Run `agentlayer init` first.\n")
+      chalk.gray("  Run `agentmind init` first.\n")
     )
     process.exit(1)
   }
@@ -44,7 +44,7 @@ export async function status() {
       totalAnnotations = annotations.length
       totalBehaviors = behaviors.length
 
-      // Estimate injected context size (what agentlayer would emit)
+      // Estimate injected context size (what agentmind would emit)
       injectedSize = estimateInjectedSize(rules, annotations)
 
       // Find files with rules but no annotations
@@ -80,7 +80,7 @@ export async function status() {
 
   // Render dashboard
   console.log("")
-  console.log(chalk.bold("  agentlayer status"))
+  console.log(chalk.bold("  agentmind status"))
   console.log(chalk.gray("  " + "\u2500".repeat(40)))
   console.log("")
 
@@ -132,7 +132,7 @@ export async function status() {
     const injectTokens = Math.round(injectedSize / 4)
     console.log(`  Token reduction: ~${reduction}%`)
     console.log(chalk.gray(`    Full context dump: ${fullDumpSize.toLocaleString()} chars (~${fullTokens.toLocaleString()} tokens)`))
-    console.log(chalk.gray(`    Agentlayer inject: ${injectedSize.toLocaleString()} chars (~${injectTokens.toLocaleString()} tokens)`))
+    console.log(chalk.gray(`    Agentmind inject: ${injectedSize.toLocaleString()} chars (~${injectTokens.toLocaleString()} tokens)`))
     console.log("")
   }
 
@@ -153,7 +153,7 @@ export async function status() {
     }
     console.log(
       chalk.gray(
-        `\n  Run ${chalk.white("`agentlayer annotate <file>`")} to add context.`
+        `\n  Run ${chalk.white("`agentmind annotate <file>`")} to add context.`
       )
     )
     console.log("")
@@ -163,13 +163,13 @@ export async function status() {
   if (fs.existsSync(dbPath)) {
     const stat = fs.statSync(dbPath)
     console.log(
-      chalk.gray(`  Store: ${formatBytes(stat.size)} at .agentlayer/context.db`)
+      chalk.gray(`  Store: ${formatBytes(stat.size)} at .agentmind/context.db`)
     )
   }
   if (fs.existsSync(jsonlPath)) {
     const stat = fs.statSync(jsonlPath)
     console.log(
-      chalk.gray(`  JSONL: ${formatBytes(stat.size)} at .agentlayer/context.jsonl`)
+      chalk.gray(`  JSONL: ${formatBytes(stat.size)} at .agentmind/context.jsonl`)
     )
   }
   console.log("")
@@ -199,7 +199,7 @@ function estimateFullDumpSize(root: string): number {
 function estimateInjectedSize(rules: ContextEntry[], annotations: ContextEntry[]): number {
   // Approximate what inject would output for a typical routed query
   // Header + each entry's rules/annotations rendered as markdown
-  const header = "# Agentlayer Context\n\nRelevant context from the project knowledge base:\n\n"
+  const header = "# Agentmind Context\n\nRelevant context from the project knowledge base:\n\n"
   let size = header.length
 
   for (const e of rules) {

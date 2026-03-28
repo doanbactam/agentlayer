@@ -13,9 +13,9 @@ import type {
 
 export async function init() {
   const cwd = process.cwd()
-  const agentlayerDir = path.join(cwd, ".agentlayer")
-  const dbPath = path.join(agentlayerDir, "context.db")
-  const jsonlPath = path.join(agentlayerDir, "context.jsonl")
+  const agentmindDir = path.join(cwd, ".agentmind")
+  const dbPath = path.join(agentmindDir, "context.db")
+  const jsonlPath = path.join(agentmindDir, "context.jsonl")
 
   const isProject = detectProject(cwd)
   if (!isProject) {
@@ -30,12 +30,12 @@ export async function init() {
     process.exit(1)
   }
 
-  if (fs.existsSync(agentlayerDir)) {
+  if (fs.existsSync(agentmindDir)) {
     console.error(
-      chalk.yellow("\n  agentlayer is already initialized in this project.")
+      chalk.yellow("\n  agentmind is already initialized in this project.")
     )
     console.error(
-      chalk.gray("  Run `agentlayer scan` to update context.\n")
+      chalk.gray("  Run `agentmind scan` to update context.\n")
     )
     process.exit(1)
   }
@@ -54,7 +54,7 @@ export async function init() {
     process.exit(1)
   }
 
-  fs.mkdirSync(agentlayerDir, { recursive: true })
+  fs.mkdirSync(agentmindDir, { recursive: true })
 
   const store = new ContextStore(cwd)
 
@@ -88,11 +88,11 @@ export async function init() {
   )
   console.log(
     chalk.green("  \u2713") +
-      ` Context store: ${chalk.cyan(".agentlayer/context.db")}`
+      ` Context store: ${chalk.cyan(".agentmind/context.db")}`
   )
   console.log(
     chalk.green("  \u2713") +
-      ` Git-ready: ${chalk.cyan(".agentlayer/context.jsonl")}`
+      ` Git-ready: ${chalk.cyan(".agentmind/context.jsonl")}`
   )
   console.log("")
 
@@ -112,7 +112,7 @@ export async function init() {
     }
     console.log(
       chalk.gray(
-        `\n  Run ${chalk.white("`agentlayer annotate <file>`")} to add context for these patterns.`
+        `\n  Run ${chalk.white("`agentmind annotate <file>`")} to add context for these patterns.`
       )
     )
     console.log("")
@@ -120,7 +120,7 @@ export async function init() {
 
   console.log(
     chalk.gray(
-      `  Next: ${chalk.white("`agentlayer status`")} to check context health`
+      `  Next: ${chalk.white("`agentmind status`")} to check context health`
     )
   )
   console.log("")
@@ -176,13 +176,13 @@ function formatClassificationList(
 
 function updateGitignore(cwd: string): void {
   const gitignorePath = path.join(cwd, ".gitignore")
-  const entry = ".agentlayer/context.db"
+  const entry = ".agentmind/context.db"
 
   if (!fs.existsSync(gitignorePath)) return
 
   const content = fs.readFileSync(gitignorePath, "utf-8")
   if (content.includes(entry)) return
 
-  const newContent = content.trimEnd() + "\n\n# agentlayer\n.agentlayer/context.db\n"
+  const newContent = content.trimEnd() + "\n\n# agentmind\n.agentmind/context.db\n"
   fs.writeFileSync(gitignorePath, newContent)
 }

@@ -25,13 +25,13 @@ import { templateList, templateApply } from "./commands/template.js"
 const program = new Command()
 
 program
-  .name("agentlayer")
+  .name("agentmind")
   .description("Intelligent context routing for AI coding agents")
   .version("0.1.0")
 
 program
   .command("init")
-  .description("Initialize agentlayer in the current project")
+  .description("Initialize agentmind in the current project")
   .action(init)
 
 program
@@ -43,7 +43,7 @@ program
 
 program
   .command("status")
-  .description("Show agentlayer status and health")
+  .description("Show agentmind status and health")
   .action(status)
 
 program
@@ -157,7 +157,7 @@ program
 
 program
   .command("unsync")
-  .description("Remove agentlayer context from editor rule files")
+  .description("Remove agentmind context from editor rule files")
   .argument("[tool]", "Target tool (cursor, windsurf). Default: all")
   .action((tool) => sync({ tool: tool ?? undefined, remove: true }))
 

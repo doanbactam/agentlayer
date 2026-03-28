@@ -62,7 +62,7 @@ function createFixtureProject(prefix) {
 }
 
 function insertAnnotation(root, filePath, text) {
-  const dbPath = path.join(root, ".agentlayer", "context.db")
+  const dbPath = path.join(root, ".agentmind", "context.db")
   const db = new Database(dbPath)
   try {
     db.prepare(`
@@ -115,8 +115,8 @@ function installFakeGit(root, mode) {
       "const args = process.argv.slice(2)",
       "const command = args.join(\" \")",
       "if (command === \"rev-parse --git-dir\") { console.log('.git'); process.exit(0) }",
-      "if (command === \"status --porcelain .agentlayer/context.jsonl\") { process.stdout.write(' M .agentlayer/context.jsonl\\n'); process.exit(0) }",
-      "if (command === \"add .agentlayer/context.jsonl\") { process.exit(0) }",
+      "if (command === \"status --porcelain .agentmind/context.jsonl\") { process.stdout.write(' M .agentmind/context.jsonl\\n'); process.exit(0) }",
+      "if (command === \"add .agentmind/context.jsonl\") { process.exit(0) }",
       "if (args[0] === \"commit\") {",
       "  if (mode === \"commit-fail\") { console.error('commit blocked'); process.exit(1) }",
       "  process.exit(0)",
@@ -177,7 +177,7 @@ function stopChild(child) {
 }
 
 test("serve exposes MCP tools over stdio", async () => {
-  const fixtureRoot = createFixtureProject("agentlayer-serve-")
+  const fixtureRoot = createFixtureProject("agentmind-serve-")
 
   try {
     const init = runCli(["init"], fixtureRoot)
@@ -194,7 +194,7 @@ test("serve exposes MCP tools over stdio", async () => {
         id: 1,
         method: "initialize",
       })
-      assert.equal(initResponse.result.serverInfo.name, "agentlayer")
+      assert.equal(initResponse.result.serverInfo.name, "agentmind")
 
       const toolsResponse = await requestJsonRpc(child, {
         jsonrpc: "2.0",
@@ -218,19 +218,19 @@ test("serve exposes MCP tools over stdio", async () => {
 })
 
 test("pull --force aborts on invalid JSONL without wiping local store", () => {
-  const fixtureRoot = createFixtureProject("agentlayer-pull-")
+  const fixtureRoot = createFixtureProject("agentmind-pull-")
 
   try {
     const init = runCli(["init"], fixtureRoot)
     assert.equal(init.status, 0, init.stderr || init.stdout)
 
-    const dbPath = path.join(fixtureRoot, ".agentlayer", "context.db")
+    const dbPath = path.join(fixtureRoot, ".agentmind", "context.db")
     const before = new Database(dbPath, { readonly: true })
     const beforeCount = before.prepare("SELECT COUNT(*) as c FROM context_entries").get().c
     before.close()
     assert.ok(beforeCount > 0)
 
-    writeFileSync(path.join(fixtureRoot, ".agentlayer", "context.jsonl"), "{not json}\n", "utf-8")
+    writeFileSync(path.join(fixtureRoot, ".agentmind", "context.jsonl"), "{not json}\n", "utf-8")
 
     const pull = runCli(["pull", "--force"], fixtureRoot)
     assert.equal(pull.status, 0, pull.stderr || pull.stdout)
@@ -246,7 +246,7 @@ test("pull --force aborts on invalid JSONL without wiping local store", () => {
 })
 
 test("push exports JSONL in a non-git project", () => {
-  const fixtureRoot = createFixtureProject("agentlayer-push-local-")
+  const fixtureRoot = createFixtureProject("agentmind-push-local-")
 
   try {
     const init = runCli(["init"], fixtureRoot)
@@ -256,10 +256,10 @@ test("push exports JSONL in a non-git project", () => {
 
     const push = runCli(["push"], fixtureRoot)
     assert.equal(push.status, 0, push.stderr || push.stdout)
-    assert.match(push.stdout, /Pushed \d+ entries to \.agentlayer\/context\.jsonl/)
+    assert.match(push.stdout, /Pushed \d+ entries to \.agentmind\/context\.jsonl/)
     assert.match(push.stdout, /Not a git repository\. JSONL export is local only\./)
 
-    const jsonl = readFileSync(path.join(fixtureRoot, ".agentlayer", "context.jsonl"), "utf-8")
+    const jsonl = readFileSync(path.join(fixtureRoot, ".agentmind", "context.jsonl"), "utf-8")
     assert.match(jsonl, /local note/)
   } finally {
     rmSync(fixtureRoot, { recursive: true, force: true })
@@ -267,7 +267,7 @@ test("push exports JSONL in a non-git project", () => {
 })
 
 test("push keeps local export when git commit fails", () => {
-  const fixtureRoot = createFixtureProject("agentlayer-push-gitfail-")
+  const fixtureRoot = createFixtureProject("agentmind-push-gitfail-")
 
   try {
     const init = runCli(["init"], fixtureRoot)
@@ -281,7 +281,7 @@ test("push keeps local export when git commit fails", () => {
     assert.match(push.stdout, /Git commit failed:/)
     assert.match(push.stdout, /updated locally but was not committed/)
 
-    const jsonl = readFileSync(path.join(fixtureRoot, ".agentlayer", "context.jsonl"), "utf-8")
+    const jsonl = readFileSync(path.join(fixtureRoot, ".agentmind", "context.jsonl"), "utf-8")
     assert.match(jsonl, /git failure note/)
   } finally {
     rmSync(fixtureRoot, { recursive: true, force: true })
@@ -289,13 +289,13 @@ test("push keeps local export when git commit fails", () => {
 })
 
 test("pull continues with local JSONL when git pull fails", () => {
-  const fixtureRoot = createFixtureProject("agentlayer-pull-gitfail-")
+  const fixtureRoot = createFixtureProject("agentmind-pull-gitfail-")
 
   try {
     const init = runCli(["init"], fixtureRoot)
     assert.equal(init.status, 0, init.stderr || init.stdout)
 
-    const jsonlPath = path.join(fixtureRoot, ".agentlayer", "context.jsonl")
+    const jsonlPath = path.join(fixtureRoot, ".agentmind", "context.jsonl")
     const original = readFileSync(jsonlPath, "utf-8")
     writeFileSync(jsonlPath, `${original}${createJsonlLine(999001, "src/index.ts", "pulled despite git failure")}`, "utf-8")
 
@@ -306,7 +306,7 @@ test("pull continues with local JSONL when git pull fails", () => {
     assert.match(pull.stdout, /Continuing with local context\.jsonl/)
     assert.match(pull.stdout, /Pulled 1 new entries, \d+ existing, 0 removed/)
 
-    const db = new Database(path.join(fixtureRoot, ".agentlayer", "context.db"), { readonly: true })
+    const db = new Database(path.join(fixtureRoot, ".agentmind", "context.db"), { readonly: true })
     const row = db.prepare(`
       SELECT COUNT(*) as c FROM context_entries
       WHERE type = 'annotation' AND file_path = 'src/index.ts'
@@ -333,8 +333,8 @@ test("npm pack dry-run publishes only distributable files", () => {
   assert.equal(pack.status, 0, pack.stderr || pack.stdout)
   assert.doesNotMatch(output, /npm notice .*src\//)
   assert.doesNotMatch(output, /npm notice .*test\//)
-  assert.doesNotMatch(output, /npm notice .*\.agentlayer\//)
-  assert.doesNotMatch(output, /npm notice .*agentlayer_spec\.docx/)
+  assert.doesNotMatch(output, /npm notice .*\.agentmind\//)
+  assert.doesNotMatch(output, /npm notice .*agentmind_spec\.docx/)
   assert.match(output, /npm notice .*README\.md/)
   assert.match(output, /npm notice .*dist\/cli\/index\.js/)
   assert.match(output, /npm notice .*LICENSE/)

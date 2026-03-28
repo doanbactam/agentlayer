@@ -9,7 +9,7 @@ type Matcher = [RegExp, FileClassification]
 const pathMatchers: Matcher[] = [
   // generated / vendor first — broadest exclusions
   [/(^|\/)node_modules\//, "vendor"],
-  [/\.agentlayer\//, "generated"],
+  [/\.agentmind\//, "generated"],
   [/(^|\/)(dist|\.next|coverage|build|out|\.output)\//, "build"],
   [/\.min\.(js|css)$/, "generated"],
 
@@ -82,7 +82,7 @@ export async function classify(root: string): Promise<{ files: FileInfo[]; class
       "dist/**",
       ".next/**",
       "coverage/**",
-      ".agentlayer/**",
+      ".agentmind/**",
     ],
     nodir: true,
     dot: true,

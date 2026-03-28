@@ -10,7 +10,7 @@ interface InjectOptions {
 
 export async function inject(query?: string, options?: InjectOptions): Promise<void> {
   const projectRoot = process.cwd()
-  const storePath = path.join(projectRoot, ".agentlayer", "context.db")
+  const storePath = path.join(projectRoot, ".agentmind", "context.db")
 
   if (!fs.existsSync(storePath)) {
     process.exit(0)
@@ -59,7 +59,7 @@ function outputContext(entries: ContextEntry[]): void {
   }
 
   const lines: string[] = [
-    "# Agentlayer Context",
+    "# Agentmind Context",
     "",
     "Relevant context from the project knowledge base:",
     "",

@@ -1,9 +1,9 @@
 const CONFIG_READER = `
 import { readFileSync } from "node:fs"
 
-function getAgentLayerCommand() {
+function getAgentMindCommand() {
   try {
-    const config = JSON.parse(readFileSync(".agentlayer/config.json", "utf-8"))
+    const config = JSON.parse(readFileSync(".agentmind/config.json", "utf-8"))
     if (Array.isArray(config.command) && config.command.every((part) => typeof part === "string" && part.length > 0)) {
       return config.command
     }
@@ -11,7 +11,7 @@ function getAgentLayerCommand() {
       return [config.bin]
     }
   } catch {}
-  return ["agentlayer"]
+  return ["agentmind"]
 }
 `
 
@@ -47,11 +47,11 @@ async function main() {
     }
 
     const filePath = toolInfo?.tool_input?.file_path || toolInfo?.tool_input?.path
-    if (!filePath || !existsSync(".agentlayer/context.db")) {
+    if (!filePath || !existsSync(".agentmind/context.db")) {
       process.exit(0)
     }
 
-    const command = getAgentLayerCommand()
+    const command = getAgentMindCommand()
     const child = spawn(command[0], [...command.slice(1), "inject", "--file", filePath], {
       stdio: ["ignore", "pipe", "pipe"],
     })
@@ -67,8 +67,8 @@ async function main() {
       process.stdout.write(stdout)
     }
   } catch (error) {
-    if (process.env.AGENTLAYER_DEBUG) {
-      console.error("[agentlayer hook error]", error)
+    if (process.env.AGENTMIND_DEBUG) {
+      console.error("[agentmind hook error]", error)
     }
   }
 }
@@ -99,13 +99,13 @@ async function main() {
     }
 
     const filePath = resultInfo?.tool_input?.file_path || resultInfo?.tool_input?.path
-    if (!filePath || !existsSync(".agentlayer/context.db")) {
+    if (!filePath || !existsSync(".agentmind/context.db")) {
       process.exit(0)
     }
 
     const toolName = resultInfo?.tool_name || "unknown"
     const success = !resultInfo?.tool_result?.error
-    const command = getAgentLayerCommand()
+    const command = getAgentMindCommand()
     const child = spawn(
       command[0],
       [...command.slice(1), "log-behavior", "--file", filePath, "--tool", toolName, "--success", String(success)],
@@ -113,8 +113,8 @@ async function main() {
     )
     child.unref()
   } catch (error) {
-    if (process.env.AGENTLAYER_DEBUG) {
-      console.error("[agentlayer hook error]", error)
+    if (process.env.AGENTMIND_DEBUG) {
+      console.error("[agentmind hook error]", error)
     }
   }
 }
@@ -131,7 +131,7 @@ ${CONFIG_READER}
 
 async function main() {
   try {
-    if (!existsSync(".agentlayer/context.db")) {
+    if (!existsSync(".agentmind/context.db")) {
       process.exit(0)
     }
 
@@ -151,7 +151,7 @@ async function main() {
       process.exit(0)
     }
 
-    const command = getAgentLayerCommand()
+    const command = getAgentMindCommand()
     for (const filePath of changedFiles) {
       const child = spawn(
         command[0],
@@ -161,8 +161,8 @@ async function main() {
       child.unref()
     }
   } catch (error) {
-    if (process.env.AGENTLAYER_DEBUG) {
-      console.error("[agentlayer hook error]", error)
+    if (process.env.AGENTMIND_DEBUG) {
+      console.error("[agentmind hook error]", error)
     }
   }
 }

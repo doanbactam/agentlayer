@@ -19,14 +19,14 @@ interface BehaviorRow {
 
 export async function showBehaviors(options: BehaviorsOptions): Promise<void> {
   const projectRoot = process.cwd()
-  const storePath = path.join(projectRoot, ".agentlayer", "context.db")
+  const storePath = path.join(projectRoot, ".agentmind", "context.db")
 
   if (!fs.existsSync(storePath)) {
     console.error(
-      chalk.red("\n  agentlayer is not initialized in this project.")
+      chalk.red("\n  agentmind is not initialized in this project.")
     )
     console.error(
-      chalk.gray("  Run `agentlayer init` first.\n")
+      chalk.gray("  Run `agentmind init` first.\n")
     )
     process.exit(1)
   }

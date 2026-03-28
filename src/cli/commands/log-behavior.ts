@@ -13,11 +13,11 @@ interface LogBehaviorOptions {
 /**
  * Internal command: log agent behavior from hooks.
  * Called by post-tool-use and post-commit hooks.
- * Exits silently unless AGENTLAYER_DEBUG is set.
+ * Exits silently unless AGENTMIND_DEBUG is set.
  */
 export async function logBehavior(options: LogBehaviorOptions): Promise<void> {
   const projectRoot = process.cwd()
-  const storePath = path.join(projectRoot, ".agentlayer", "context.db")
+  const storePath = path.join(projectRoot, ".agentmind", "context.db")
 
   if (!fs.existsSync(storePath)) {
     process.exit(0)
@@ -50,12 +50,12 @@ export async function logBehavior(options: LogBehaviorOptions): Promise<void> {
       ]
     )
 
-    if (process.env.AGENTLAYER_DEBUG) {
-      console.error(`[agentlayer] logged behavior: ${action} on ${filePath ?? "(unknown)"} success=${success}`)
+    if (process.env.AGENTMIND_DEBUG) {
+      console.error(`[agentmind] logged behavior: ${action} on ${filePath ?? "(unknown)"} success=${success}`)
     }
   } catch (error) {
-    if (process.env.AGENTLAYER_DEBUG) {
-      console.error("[agentlayer] log-behavior error:", error)
+    if (process.env.AGENTMIND_DEBUG) {
+      console.error("[agentmind] log-behavior error:", error)
     }
   } finally {
     store.close()

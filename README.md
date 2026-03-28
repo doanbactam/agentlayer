@@ -1,14 +1,14 @@
-# agentlayer
+# @iamsyr/agentmind
 
 **Intelligent context routing for AI coding agents.**
 
-[![npm version](https://img.shields.io/npm/v/agentlayer.svg)](https://www.npmjs.com/package/agentlayer)
-[![Node.js Version](https://img.shields.io/node/v/agentlayer.svg)](https://nodejs.org)
+[![npm version](https://img.shields.io/npm/v/@iamsyr/agentmind.svg)](https://www.npmjs.com/package/@iamsyr/agentmind)
+[![Node.js Version](https://img.shields.io/node/v/@iamsyr/agentmind.svg)](https://nodejs.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
-## Why agentlayer?
+## Why agentmind?
 
 AI coding agents (Claude Code, Codex, Cursor, Windsurf) work better when they understand your project. But:
 
@@ -17,7 +17,7 @@ AI coding agents (Claude Code, Codex, Cursor, Windsurf) work better when they un
 - **No shared knowledge** between agents
 - **Conflicts** when multiple agents edit the same files
 
-**agentlayer fixes this** by:
+**agentmind fixes this** by:
 
 1. **Scanning** your project and building a context map
 2. **Storing** context in a git-friendly SQLite database
@@ -32,10 +32,10 @@ The result: agents understand your project faster, commit fewer bugs, and coordi
 
 ```bash
 # Global CLI
-npm install -g agentlayer
+npm install -g @iamsyr/agentmind
 
 # Or as a local dev dependency
-npm install --save-dev agentlayer
+npm install --save-dev @iamsyr/agentmind
 ```
 
 **Requirements:** Node.js 22+ and native module `better-sqlite3`.
@@ -43,7 +43,7 @@ npm install --save-dev agentlayer
 ### Run from source
 
 ```bash
-git clone https://github.com/your-org/agentlayer.git
+git clone https://github.com/doanbactam/agentlayer.git
 cd agentlayer
 npm install
 npm run build
@@ -55,17 +55,17 @@ node dist/cli/index.js --help
 ## Quick Start
 
 ```bash
-# 1. Initialize agentlayer in your project
-agentlayer init
+# 1. Initialize agentmind in your project
+agentmind init
 
 # 2. Scan project files and build context map
-agentlayer scan
+agentmind scan
 
 # 3. Check status
-agentlayer status
+agentmind status
 
 # 4. (Optional) Start MCP server for agent integration
-agentlayer serve
+agentmind serve
 ```
 
 ---
@@ -112,7 +112,7 @@ agentlayer serve
 
 | Command              | Description                                     | Options                    |
 |----------------------|-------------------------------------------------|----------------------------|
-| `init`               | Initialize agentlayer in the project            | —                          |
+| `init`               | Initialize agentmind in the project            | —                          |
 | `scan`               | Scan project files and build context map        | `-f, --force`, `--json`    |
 | `status`             | Show status and health overview                 | —                          |
 | `health`             | Dashboard with coverage, staleness, recs        | `--json`                   |
@@ -173,12 +173,12 @@ agentlayer serve
 
 ## MCP Server
 
-Agentlayer provides an MCP server over stdio (protocol version 2024-11-05).
+Agentmind provides an MCP server over stdio (protocol version 2024-11-05).
 
 ### Start server
 
 ```bash
-agentlayer serve
+agentmind serve
 ```
 
 ### Available Tools
@@ -196,9 +196,9 @@ agentlayer serve
 ```json
 {
   "mcpServers": {
-    "agentlayer": {
+    "agentmind": {
       "command": "node",
-      "args": ["/path/to/agentlayer/dist/cli/index.js", "serve"]
+      "args": ["/path/to/agentmind/dist/cli/index.js", "serve"]
     }
   }
 }
@@ -208,22 +208,22 @@ agentlayer serve
 
 ## Hooks System
 
-Hooks let agentlayer automatically track agent behavior and inject context.
+Hooks let agentmind automatically track agent behavior and inject context.
 
 ### Install hooks
 
 ```bash
 # Claude Code
-agentlayer hooks claude
+agentmind hooks claude
 
 # Codex
-agentlayer hooks codex
+agentmind hooks codex
 ```
 
 ### Generated Files
 
 ```
-.agentlayer/
+.agentmind/
 ├── hooks/
 │   ├── pre-tool-use.mjs    # Runs before each tool call
 │   ├── post-tool-use.mjs   # Runs after each tool call
@@ -275,26 +275,26 @@ Agent A                     Agent B
 
 ```bash
 # Register an agent
-agentlayer bridge register --id agent-001 --tool claude
+agentmind bridge register --id agent-001 --tool claude
 
 # Claim files (locks them)
-agentlayer bridge claim --id agent-001 --files src/auth.ts src/api.ts
+agentmind bridge claim --id agent-001 --files src/auth.ts src/api.ts
 
 # Check status
-agentlayer bridge status
+agentmind bridge status
 
 # View conflicts
-agentlayer bridge conflicts
+agentmind bridge conflicts
 
 # Release files
-agentlayer bridge release --id agent-001 --files src/auth.ts
+agentmind bridge release --id agent-001 --files src/auth.ts
 ```
 
 ---
 
 ## Programmatic API
 
-Use agentlayer as a library:
+Use agentmind as a library:
 
 ```typescript
 import {
@@ -307,7 +307,7 @@ import {
   classify,
   detectPatterns,
   buildGraph,
-} from "agentlayer"
+} from "@iamsyr/agentmind"
 
 // Types
 import type {
@@ -325,7 +325,7 @@ import type {
   Rule,
   ScanResult,
   StoreHealth,
-} from "agentlayer"
+} from "@iamsyr/agentmind"
 
 // Initialize store
 const store = new ContextStore("/path/to/project")
@@ -334,10 +334,10 @@ const store = new ContextStore("/path/to/project")
 const result: ScanResult = await scan("/path/to/project")
 
 // Export for git
-exportJSONL(store, ".agentlayer/context.jsonl")
+exportJSONL(store, ".agentmind/context.jsonl")
 
 // Import from remote
-importJSONL(store, ".agentlayer/context.jsonl")
+importJSONL(store, ".agentmind/context.jsonl")
 ```
 
 ---
@@ -361,13 +361,13 @@ Templates are pre-built context configurations for popular stacks.
 
 ```bash
 # List all templates
-agentlayer template list
+agentmind template list
 
 # Auto-detect and apply matching templates
-agentlayer template apply --all
+agentmind template apply --all
 
 # Apply a specific template
-agentlayer template apply nextjs
+agentmind template apply nextjs
 ```
 
 ---
@@ -375,7 +375,7 @@ agentlayer template apply nextjs
 ## Data Files & Git Integration
 
 ```
-.agentlayer/
+.agentmind/
 ├── context.db       # SQLite database (local, do not commit)
 ├── context.jsonl    # Git-friendly export (commit to repo)
 ├── config.json      # Hook and runtime config
@@ -386,21 +386,21 @@ agentlayer template apply nextjs
 
 ```bash
 # Export DB → JSONL (before committing)
-agentlayer push -m "Update context"
+agentmind push -m "Update context"
 
 # Import JSONL → DB (after pulling)
-agentlayer pull
+agentmind pull
 ```
 
 ### .gitignore
 
 ```gitignore
 # Do not commit (local state)
-.agentlayer/context.db
-.agentlayer/config.json
+.agentmind/context.db
+.agentmind/config.json
 
 # Commit to repo (shared context)
-# .agentlayer/context.jsonl
+# .agentmind/context.jsonl
 ```
 
 ---

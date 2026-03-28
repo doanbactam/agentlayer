@@ -50,17 +50,17 @@ interface HealthData {
 
 export async function health(opts: { json?: boolean }): Promise<void> {
   const cwd = process.cwd()
-  const agentlayerDir = path.join(cwd, ".agentlayer")
-  const dbPath = path.join(agentlayerDir, "context.db")
+  const agentmindDir = path.join(cwd, ".agentmind")
+  const dbPath = path.join(agentmindDir, "context.db")
 
-  if (!fs.existsSync(agentlayerDir)) {
-    console.error(chalk.red("\n  agentlayer is not initialized in this project."))
-    console.error(chalk.gray("  Run `agentlayer init` first.\n"))
+  if (!fs.existsSync(agentmindDir)) {
+    console.error(chalk.red("\n  agentmind is not initialized in this project."))
+    console.error(chalk.gray("  Run `agentmind init` first.\n"))
     process.exit(1)
   }
 
   if (!fs.existsSync(dbPath)) {
-    console.error(chalk.yellow("\n  No context store found. Run `agentlayer scan` first.\n"))
+    console.error(chalk.yellow("\n  No context store found. Run `agentmind scan` first.\n"))
     process.exit(1)
   }
 
@@ -312,7 +312,7 @@ function renderDashboard(data: HealthData): void {
   const hr = chalk.gray("  " + "\u2500".repeat(W))
 
   console.log("")
-  console.log(chalk.bold("  agentlayer health"))
+  console.log(chalk.bold("  agentmind health"))
   console.log(hr)
   console.log("")
 
@@ -460,7 +460,7 @@ function extractDir(filePath: string): string {
 function classifyFromPath(p: string): FileClassification {
   const pathMatchers: [RegExp, FileClassification][] = [
     [/(^|\/)node_modules\//, "vendor"],
-    [/\.agentlayer\//, "generated"],
+    [/\.agentmind\//, "generated"],
     [/(^|\/)(dist|\.next|coverage|build|out|\.output)\//, "build"],
     [/\.min\.(js|css)$/, "generated"],
     [/(^|\/)(__tests__|test|tests|spec|specs)\//, "test"],

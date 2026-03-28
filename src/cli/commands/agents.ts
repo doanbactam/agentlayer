@@ -7,7 +7,7 @@ export async function agents() {
   const conflicts = detectAllConflicts(bridge)
 
   console.log("")
-  console.log(chalk.bold("  agentlayer agents"))
+  console.log(chalk.bold("  agentmind agents"))
   console.log(chalk.gray("  " + "\u2500".repeat(40)))
   console.log("")
 

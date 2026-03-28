@@ -23,8 +23,8 @@ export interface Adapter {
   isInstalled(projectRoot: string): boolean
 }
 
-export const SYNC_MARKER_START = "<!-- agentlayer:sync -->"
-export const SYNC_MARKER_END = "<!-- agentlayer:endsync -->"
+export const SYNC_MARKER_START = "<!-- agentmind:sync -->"
+export const SYNC_MARKER_END = "<!-- agentmind:endsync -->"
 
 export function buildContext(store: ContextStore): AdapterContext {
   const entries = store.getEntries()

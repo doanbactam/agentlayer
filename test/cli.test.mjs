@@ -19,11 +19,11 @@ function runCli(args, cwd = projectRoot) {
 test("cli help renders under node", () => {
   const result = runCli(["--help"])
   assert.equal(result.status, 0, result.stderr || result.stdout)
-  assert.match(result.stdout, /Usage: agentlayer/)
+  assert.match(result.stdout, /Usage: agentmind/)
 })
 
 test("init + scan do not duplicate scanner rules", () => {
-  const fixtureRoot = mkdtempSync(path.join(tmpdir(), "agentlayer-"))
+  const fixtureRoot = mkdtempSync(path.join(tmpdir(), "agentmind-"))
 
   try {
     mkdirSync(path.join(fixtureRoot, "src"), { recursive: true })
@@ -54,8 +54,8 @@ test("init + scan do not duplicate scanner rules", () => {
     const init = runCli(["init"], fixtureRoot)
     assert.equal(init.status, 0, init.stderr || init.stdout)
 
-    const dbPath = path.join(fixtureRoot, ".agentlayer", "context.db")
-    const jsonlPath = path.join(fixtureRoot, ".agentlayer", "context.jsonl")
+    const dbPath = path.join(fixtureRoot, ".agentmind", "context.db")
+    const jsonlPath = path.join(fixtureRoot, ".agentmind", "context.jsonl")
     const initialJsonl = readFileSync(jsonlPath, "utf-8")
     assert.ok(initialJsonl.length > 0)
 

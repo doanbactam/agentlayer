@@ -13,14 +13,14 @@ export async function annotate(
   opts?: { line?: string }
 ) {
   const cwd = process.cwd()
-  const agentlayerDir = path.join(cwd, ".agentlayer")
+  const agentmindDir = path.join(cwd, ".agentmind")
 
-  if (!fs.existsSync(agentlayerDir)) {
+  if (!fs.existsSync(agentmindDir)) {
     console.error(
-      chalk.red("\n  agentlayer is not initialized in this project.")
+      chalk.red("\n  agentmind is not initialized in this project.")
     )
     console.error(
-      chalk.gray("  Run `agentlayer init` first.\n")
+      chalk.gray("  Run `agentmind init` first.\n")
     )
     process.exit(1)
   }
@@ -68,7 +68,7 @@ export async function annotate(
     annotationText = await prompt("  Annotation: ")
     if (!annotationText?.trim()) {
       console.error(chalk.red("\n  No annotation text provided."))
-      console.error(chalk.gray("  Usage: agentlayer annotate <file> <text>\n"))
+      console.error(chalk.gray("  Usage: agentmind annotate <file> <text>\n"))
       process.exit(1)
     }
   }
@@ -104,7 +104,7 @@ export async function annotate(
   }
 
   // Export to JSONL
-  const jsonlExportPath = path.join(agentlayerDir, "context.jsonl")
+  const jsonlExportPath = path.join(agentmindDir, "context.jsonl")
   try {
     const entry = {
       id: annotation.id,

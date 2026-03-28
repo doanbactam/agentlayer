@@ -14,16 +14,16 @@ import type {
 
 export async function scan(opts: { force?: boolean; json?: boolean }) {
   const cwd = process.cwd()
-  const agentlayerDir = path.join(cwd, ".agentlayer")
-  const dbPath = path.join(agentlayerDir, "context.db")
-  const jsonlPath = path.join(agentlayerDir, "context.jsonl")
+  const agentmindDir = path.join(cwd, ".agentmind")
+  const dbPath = path.join(agentmindDir, "context.db")
+  const jsonlPath = path.join(agentmindDir, "context.jsonl")
 
-  if (!fs.existsSync(agentlayerDir)) {
+  if (!fs.existsSync(agentmindDir)) {
     console.error(
-      chalk.red("\n  agentlayer is not initialized in this project.")
+      chalk.red("\n  agentmind is not initialized in this project.")
     )
     console.error(
-      chalk.gray("  Run `agentlayer init` first.\n")
+      chalk.gray("  Run `agentmind init` first.\n")
     )
     process.exit(1)
   }

@@ -7,10 +7,10 @@ import type { ContextEntry, StoreHealth } from "../../types/index.js"
 
 export async function share(opts: { format?: string; output?: string }) {
   const cwd = process.cwd()
-  const dbPath = join(cwd, ".agentlayer", "context.db")
+  const dbPath = join(cwd, ".agentmind", "context.db")
 
   if (!existsSync(dbPath)) {
-    console.error(chalk.red("\n  agentlayer is not initialized. Run `agentlayer init` first.\n"))
+    console.error(chalk.red("\n  agentmind is not initialized. Run `agentmind init` first.\n"))
     process.exit(1)
   }
 
@@ -25,7 +25,7 @@ export async function share(opts: { format?: string; output?: string }) {
   }
 
   if (entries.length === 0) {
-    console.error(chalk.yellow("\n  No context entries found. Run `agentlayer scan` first.\n"))
+    console.error(chalk.yellow("\n  No context entries found. Run `agentmind scan` first.\n"))
     process.exit(1)
   }
 
