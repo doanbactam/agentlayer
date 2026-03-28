@@ -38,7 +38,20 @@ export async function annotate(
   }
 
   const relativePath = path.relative(cwd, resolvedPath).replace(/\\/g, "/")
-  const lineNumber = opts?.line ? parseInt(opts.line, 10) : undefined
+  let lineNumber: number | undefined
+  if (opts?.line) {
+    const parsed = parseInt(opts.line, 10)
+    if (Number.isNaN(parsed) || parsed < 1) {
+      console.error(
+        chalk.red(`\n  Invalid line number: "${opts.line}"`)
+      )
+      console.error(
+        chalk.gray("  Line number must be a positive integer.\n")
+      )
+      process.exit(1)
+    }
+    lineNumber = parsed
+  }
 
   // Show existing annotations for context
   const store = new ContextStore(cwd)

@@ -31,7 +31,13 @@ function pat(path: string, pattern: string, reason: string, line?: number, snipp
 async function checkPackageJson(root: string): Promise<NonInferablePattern[]> {
   const raw = await readText(root, "package.json")
   if (!raw) return []
-  const pkg = JSON.parse(raw)
+  let pkg: Record<string, unknown>
+  try {
+    pkg = JSON.parse(raw)
+  } catch {
+    // Malformed package.json - skip pattern detection
+    return []
+  }
   const out: NonInferablePattern[] = []
 
   // non-standard scripts
@@ -65,7 +71,7 @@ async function checkPackageJson(root: string): Promise<NonInferablePattern[]> {
   }
 
   // native modules
-  const deps = { ...pkg.dependencies, ...pkg.devDependencies }
+  const deps = { ...(pkg.dependencies as Record<string, unknown> ?? {}), ...(pkg.devDependencies as Record<string, unknown> ?? {}) }
   const nativeHints = ["native", "node-gyp", "napi", "ffi", "wasm", ".node"]
   for (const [name] of Object.entries(deps ?? {})) {
     if (nativeHints.some(h => name.toLowerCase().includes(h))) {
@@ -156,7 +162,13 @@ async function checkMonorepo(root: string): Promise<NonInferablePattern[]> {
   // workspaces in package.json
   const raw = await readText(root, "package.json")
   if (raw) {
-    const pkg = JSON.parse(raw)
+    let pkg: Record<string, unknown>
+    try {
+      pkg = JSON.parse(raw)
+    } catch {
+      // Malformed package.json - skip monorepo detection
+      return out
+    }
     if (pkg.workspaces) {
       out.push(pat("package.json", "monorepo", `npm/yarn workspaces: ${JSON.stringify(pkg.workspaces).slice(0, 80)}`))
     }

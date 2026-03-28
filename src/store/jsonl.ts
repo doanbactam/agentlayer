@@ -1,5 +1,5 @@
 import { mkdirSync, appendFileSync } from "node:fs"
-import { dirname, join } from "node:path"
+import { dirname } from "node:path"
 import type { ContextEntry } from "../types/index.js"
 import type { ContextStore } from "./schema.js"
 
@@ -9,16 +9,25 @@ export function exportJSONL(store: ContextStore): string {
     "SELECT id, file_path, type, content, scope, priority, source, created_at FROM context_entries ORDER BY id"
   ).all() as JsonlRow[]
 
-  return rows.map((r) => JSON.stringify({
-    id: r.id,
-    type: r.type,
-    scope: r.scope,
-    filePath: r.file_path,
-    content: JSON.parse(r.content),
-    priority: r.priority,
-    source: r.source,
-    timestamp: r.created_at,
-  })).join("\n") + (rows.length > 0 ? "\n" : "")
+  return rows.map((r) => {
+    let content: unknown = {}
+    try {
+      content = JSON.parse(r.content)
+    } catch {
+      // Malformed JSON content - use empty object as fallback
+      content = {}
+    }
+    return JSON.stringify({
+      id: r.id,
+      type: r.type,
+      scope: r.scope,
+      filePath: r.file_path,
+      content,
+      priority: r.priority,
+      source: r.source,
+      timestamp: r.created_at,
+    })
+  }).join("\n") + (rows.length > 0 ? "\n" : "")
 }
 
 export function importJSONL(store: ContextStore, jsonl: string): void {
@@ -33,10 +42,17 @@ export function importJSONL(store: ContextStore, jsonl: string): void {
   `)
 
   const lines = jsonl.split("\n").filter((l) => l.trim())
+  const invalidLines: number[] = []
   const tx = db.transaction(() => {
-    for (const line of lines) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
       let obj: Record<string, unknown>
-      try { obj = JSON.parse(line) } catch { continue }
+      try {
+        obj = JSON.parse(line)
+      } catch {
+        invalidLines.push(i + 1)
+        continue
+      }
       if (existing.has(obj.id as number)) continue
       insert.run(
         obj.id as number | null,
@@ -51,21 +67,40 @@ export function importJSONL(store: ContextStore, jsonl: string): void {
     }
   })
   tx()
+  if (invalidLines.length > 0) {
+    process.stderr.write(`[agentmind] Warning: Skipped ${invalidLines.length} malformed JSONL line(s) at line number(s): ${invalidLines.slice(0, 10).join(", ")}${invalidLines.length > 10 ? " ..." : ""}\n`)
+  }
 }
 
 export function appendJSONL(filepath: string, entry: ContextEntry): void {
   mkdirSync(dirname(filepath), { recursive: true })
-  const line = JSON.stringify({
+
+  const chunks: string[] = []
+
+  const base = {
     id: entry.id,
-    type: entry.rules.length > 0 ? "rule" : entry.annotations.length > 0 ? "annotation" : "behavior",
-    scope: "global",
+    scope: "global" as const,
     filePath: entry.path,
-    content: entry.rules[0] ?? entry.annotations[0] ?? entry.behaviors[0] ?? {},
-    priority: "normal",
-    source: "auto",
+    priority: "normal" as const,
+    source: "auto" as const,
     timestamp: new Date(entry.lastScanned).toISOString(),
-  }) + "\n"
-  appendFileSync(filepath, line, "utf-8")
+  }
+
+  for (const r of entry.rules) {
+    chunks.push(JSON.stringify({ ...base, type: "rule", content: r }))
+  }
+  for (const a of entry.annotations) {
+    chunks.push(JSON.stringify({ ...base, type: "annotation", content: a }))
+  }
+  for (const b of entry.behaviors) {
+    chunks.push(JSON.stringify({ ...base, type: "behavior", content: b }))
+  }
+
+  if (chunks.length === 0) {
+    chunks.push(JSON.stringify({ ...base, type: "behavior", content: {} }))
+  }
+
+  appendFileSync(filepath, chunks.join("\n") + "\n", "utf-8")
 }
 
 interface JsonlRow {

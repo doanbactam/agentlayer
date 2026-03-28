@@ -3,7 +3,7 @@ import * as fs from "node:fs"
 import * as path from "node:path"
 import { ContextStore } from "../store/schema.js"
 import { route } from "../router/index.js"
-import { formatBytes } from "../cli/utils.js"
+import { formatBytes, formatContext } from "../cli/utils.js"
 import type { ContextEntry, Annotation } from "../types/index.js"
 
 // ── Tool definitions ───────────────────────────────────
@@ -180,8 +180,8 @@ function handleToolCall(name: string, args: Record<string, unknown>, store: Cont
 }
 
 function handleGetContext(args: Record<string, unknown>, store: ContextStore): string {
-  const filePath = args.filePath as string | undefined
-  const query = args.query as string | undefined
+  const filePath = typeof args.filePath === "string" ? args.filePath : undefined
+  const query = typeof args.query === "string" ? args.query : undefined
 
   let entries: ContextEntry[]
 
@@ -223,9 +223,17 @@ function handleGetHealth(store: ContextStore): string {
 }
 
 function handleAnnotateFile(args: Record<string, unknown>, store: ContextStore, projectRoot: string): string {
-  const filePath = args.filePath as string
-  const text = args.text as string
-  const priority = (args.priority as string) || "normal"
+  // Validate required parameters
+  if (typeof args.filePath !== "string" || args.filePath.length === 0) {
+    return "Error: filePath is required and must be a non-empty string."
+  }
+  if (typeof args.text !== "string" || args.text.length === 0) {
+    return "Error: text is required and must be a non-empty string."
+  }
+
+  const filePath = args.filePath
+  const text = args.text
+  const priority = (typeof args.priority === "string" ? args.priority : null) || "normal"
 
   // Path containment check
   const resolved = path.resolve(projectRoot, filePath)
@@ -251,9 +259,20 @@ function handleAnnotateFile(args: Record<string, unknown>, store: ContextStore, 
 }
 
 function handleLogBehavior(args: Record<string, unknown>, store: ContextStore): string {
-  const filePath = args.filePath as string
-  const tool = args.tool as string
-  const success = args.success as boolean
+  // Validate required parameters
+  if (typeof args.filePath !== "string") {
+    return "Error: filePath is required and must be a string."
+  }
+  if (typeof args.tool !== "string" || args.tool.length === 0) {
+    return "Error: tool is required and must be a non-empty string."
+  }
+  if (typeof args.success !== "boolean") {
+    return "Error: success is required and must be a boolean."
+  }
+
+  const filePath = args.filePath
+  const tool = args.tool
+  const success = args.success
 
   store.getDb().run(
     "INSERT INTO behavior_log (agent_type, action, file_path, success, metadata) VALUES (?, ?, ?, ?, ?)",
@@ -264,7 +283,7 @@ function handleLogBehavior(args: Record<string, unknown>, store: ContextStore): 
 }
 
 function handleFindGaps(args: Record<string, unknown>, store: ContextStore, projectRoot: string): string {
-  const directory = args.directory as string | undefined
+  const directory = typeof args.directory === "string" ? args.directory : undefined
 
   // Get paths with existing context
   const entries = store.getEntries()
@@ -294,54 +313,6 @@ function handleFindGaps(args: Record<string, unknown>, store: ContextStore, proj
   }
   if (gaps.length > 50) {
     lines.push(`- ... and ${gaps.length - 50} more`)
-  }
-
-  return lines.join("\n")
-}
-
-// ── Formatting ─────────────────────────────────────────
-
-function formatContext(entries: ContextEntry[]): string {
-  const lines: string[] = [
-    "# Agentmind Context",
-    "",
-    "Relevant context from the project knowledge base:",
-    "",
-  ]
-
-  for (const e of entries) {
-    lines.push(`## ${e.path}`)
-    lines.push("")
-
-    if (e.classification) {
-      lines.push(`Classification: ${e.classification}`)
-      lines.push("")
-    }
-
-    if (e.annotations.length > 0) {
-      lines.push("### Annotations")
-      for (const a of e.annotations) {
-        const lineRef = a.line ? ` (line ${a.line})` : ""
-        lines.push(`- ${a.text}${lineRef}`)
-      }
-      lines.push("")
-    }
-
-    if (e.rules.length > 0) {
-      lines.push("### Rules")
-      for (const r of e.rules) {
-        lines.push(`- ${r.pattern}: ${r.description}`)
-      }
-      lines.push("")
-    }
-
-    if (e.behaviors.length > 0) {
-      lines.push("### Observed Patterns")
-      for (const b of e.behaviors) {
-        lines.push(`- ${b.pattern}: ${b.description} (${b.frequency}x)`)
-      }
-      lines.push("")
-    }
   }
 
   return lines.join("\n")

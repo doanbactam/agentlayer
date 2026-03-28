@@ -26,11 +26,7 @@ const pathMatchers: Matcher[] = [
   // style
   [/\.(css|scss|sass|less|styled|module\.css)$/, "asset"],
 
-  // data
-  [/\.(json|yaml|yml|toml|xml|csv|proto|graphql|gql)$/, "data"],
-  [/\.(sql|prisma|drizzle)$/, "data"],
-
-  // config
+  // config (must come before data so package.json etc. are caught first)
   [/\.config\.(ts|js|mjs|cjs)$/, "config"],
   [/^\.github\//, "config"],
   [/^Dockerfile/, "config"],
@@ -39,6 +35,10 @@ const pathMatchers: Matcher[] = [
   [/^\.env/, "config"],
   [/\.(lock|lockfile)$/, "config"],
   [/^(package\.json|turbo\.json|nx\.json|lerna\.json|pnpm-workspace\.yaml)$/, "config"],
+
+  // data
+  [/\.(json|yaml|yml|toml|xml|csv|proto|graphql|gql)$/, "data"],
+  [/\.(sql|prisma|drizzle)$/, "data"],
 
   // images, fonts, binaries
   [/\.(png|jpg|jpeg|gif|svg|ico|webp|avif|mp4|mp3|woff2?|ttf|eot)$/, "asset"],
@@ -54,8 +54,10 @@ const sourceExts = new Set([
 ])
 
 function classifyPath(p: string): FileClassification {
+  // Normalize to forward slashes for consistent regex matching on Windows
+  const normalized = p.replace(/\\/g, "/")
   for (const [re, cls] of pathMatchers) {
-    if (re.test(p)) return cls
+    if (re.test(normalized)) return cls
   }
   const ext = p.slice(p.lastIndexOf("."))
   if (sourceExts.has(ext)) return "source"
@@ -69,6 +71,7 @@ async function hashFile(p: string): Promise<string> {
     const buf = await readFile(p)
     return createHash("sha256").update(buf).digest("hex").slice(0, 12)
   } catch {
+    // File may have been deleted or is inaccessible after glob - return empty hash as fallback
     return ""
   }
 }
@@ -108,7 +111,7 @@ export async function classify(root: string): Promise<{ files: FileInfo[]; class
     if (r.status !== "fulfilled") continue
     const f = r.value
     files.push(f)
-    classifications.set(f.path, classifyPath(f.path))
+    classifications.set(f.path.replace(/\\/g, "/"), classifyPath(f.path))
   }
 
   return { files, classifications }

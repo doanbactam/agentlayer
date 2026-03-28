@@ -146,7 +146,7 @@ async function main() {
 
     await new Promise((resolve) => diff.on("close", resolve))
 
-    const changedFiles = output.trim().split("\\n").filter(Boolean)
+    const changedFiles = output.trim().split("\n").filter(Boolean)
     if (changedFiles.length === 0) {
       process.exit(0)
     }

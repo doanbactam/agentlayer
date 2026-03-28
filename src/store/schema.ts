@@ -5,6 +5,7 @@ import type {
   Annotation,
   BehaviorEntry,
   ContextEntry,
+  FileClassification,
   Rule,
   StoreHealth,
 } from "../types/index.js"
@@ -89,21 +90,24 @@ export class ContextStore {
   }
 
   replaceRules(source: string, rules: Rule[]): void {
-    this.db.run("DELETE FROM context_entries WHERE type = 'rule' AND source = ?", [source])
+    const insert = this.db.transaction(() => {
+      this.db.run("DELETE FROM context_entries WHERE type = 'rule' AND source = ?", [source])
 
-    for (const rule of rules) {
-      const content = JSON.stringify(rule)
-      const priorityLabel =
-        rule.priority >= PRIORITY_THRESHOLDS.critical ? "critical"
-        : rule.priority >= PRIORITY_THRESHOLDS.high ? "high"
-        : rule.priority >= PRIORITY_THRESHOLDS.normal ? "normal"
-        : "low"
+      for (const rule of rules) {
+        const content = JSON.stringify(rule)
+        const priorityLabel =
+          rule.priority >= PRIORITY_THRESHOLDS.critical ? "critical"
+          : rule.priority >= PRIORITY_THRESHOLDS.high ? "high"
+          : rule.priority >= PRIORITY_THRESHOLDS.normal ? "normal"
+          : "low"
 
-      this.db.run(
-        "INSERT INTO context_entries (file_path, type, content, scope, priority, source) VALUES (?, 'rule', ?, 'global', ?, ?)",
-        [rule.path ?? rule.pattern, content, priorityLabel, source]
-      )
-    }
+        this.db.run(
+          "INSERT INTO context_entries (file_path, type, content, scope, priority, source) VALUES (?, 'rule', ?, 'global', ?, ?)",
+          [rule.path ?? rule.pattern, content, priorityLabel, source]
+        )
+      }
+    })
+    insert()
   }
 
   getEntries(
@@ -165,14 +169,18 @@ export class ContextStore {
 
     const query = this.db.query(sql)
     const rows = query.all(...params) as BehaviorRow[]
-    return rows.map((row) => ({
-      id: String(row.id),
-      path: row.file_path ?? "",
-      pattern: "",
-      description: row.action,
-      frequency: 1,
-      lastSeen: new Date(row.timestamp).getTime(),
-    }))
+    return rows.map((row) => {
+      let meta: Record<string, unknown> = {}
+      try { meta = JSON.parse(row.metadata) } catch {}
+      return {
+        id: String(row.id),
+        path: row.file_path ?? "",
+        pattern: (meta.pattern as string) ?? "",
+        description: row.action,
+        frequency: (meta.frequency as number) ?? 1,
+        lastSeen: new Date(row.timestamp).getTime(),
+      }
+    })
   }
 
   queryContext(opts: { filePath?: string; taskDescription?: string }): ContextEntry[] {
@@ -181,20 +189,21 @@ export class ContextStore {
     }
 
     const escaped = escapeLike(opts.filePath)
+    const patternLike = globToSqlLike(escaped)
 
     const query = this.db.query(`
       SELECT * FROM context_entries
       WHERE scope = 'global'
          OR file_path = ?
          OR (
-           file_path LIKE '%' || substr(?, instr(?, '*')) || '%' ESCAPE '\\'
+           file_path LIKE ? ESCAPE '\\'
            AND scope = 'pattern'
          )
       ORDER BY CASE priority
         WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 ELSE 3 END
       , created_at DESC
     `)
-    const rows = query.all(opts.filePath, escaped, escaped) as Row[]
+    const rows = query.all(opts.filePath, patternLike) as Row[]
     return rows.map(rowToEntry)
   }
 
@@ -230,7 +239,9 @@ export class ContextStore {
     let dbSize = 0
     try {
       dbSize = statSync(this.dbPath).size
-    } catch {}
+    } catch {
+      // Database file not yet created or inaccessible - size remains 0
+    }
 
     return {
       dbSize,
@@ -275,16 +286,27 @@ function escapeLike(input: string): string {
   return input.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_")
 }
 
+function globToSqlLike(escaped: string): string {
+  if (!escaped.includes("*")) return escaped
+  return "%" + escaped.replace(/\*/g, "%") + "%"
+}
+
 function rowToEntry(row: Row): ContextEntry {
-  const parsed = JSON.parse(row.content)
+  let parsed: Record<string, unknown> = {}
+  try {
+    parsed = JSON.parse(row.content)
+  } catch {
+    // Malformed JSON content - use empty object as fallback
+    parsed = {}
+  }
   return {
     id: String(row.id),
     path: row.file_path ?? "",
-    classification: "source" as const,
-    rules: row.type === "rule" ? [parsed] : [],
-    annotations: row.type === "annotation" ? [parsed] : [],
-    behaviors: row.type === "behavior" ? [parsed] : [],
+    classification: (parsed.classification as FileClassification) ?? "source",
+    rules: row.type === "rule" ? [parsed as unknown as Rule] : [],
+    annotations: row.type === "annotation" ? [parsed as unknown as Annotation] : [],
+    behaviors: row.type === "behavior" ? [parsed as unknown as BehaviorEntry] : [],
     lastScanned: new Date(row.updated_at).getTime(),
-    hash: "",
+    hash: (parsed.hash as string) ?? "",
   }
 }
