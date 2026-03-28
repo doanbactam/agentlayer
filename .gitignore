@@ -1,0 +1,4 @@
+node_modules
+dist
+.agentlayer/context.db
+*.js.map
