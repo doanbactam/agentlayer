@@ -43,8 +43,8 @@ npm install --save-dev @iamsyr/agentmind
 ### Run from source
 
 ```bash
-git clone https://github.com/doanbactam/agentlayer.git
-cd agentlayer
+git clone https://github.com/doanbactam/agentmind.git
+cd agentmind
 npm install
 npm run build
 node dist/cli/index.js --help

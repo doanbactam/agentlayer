@@ -5,13 +5,13 @@
   "license": "MIT",
   "author": "iamsyr",
   "type": "module",
-  "homepage": "https://github.com/doanbactam/agentlayer#readme",
+  "homepage": "https://github.com/doanbactam/agentmind#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/doanbactam/agentlayer.git"
+    "url": "git+https://github.com/doanbactam/agentmind.git"
   },
   "bugs": {
-    "url": "https://github.com/doanbactam/agentlayer/issues"
+    "url": "https://github.com/doanbactam/agentmind/issues"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
