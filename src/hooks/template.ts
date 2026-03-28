@@ -13,7 +13,7 @@ function getAgentMindCommand() {
   } catch {}
   return ["agentmind"]
 }
-`
+`;
 
 const STDIN_READER = `
 async function readStdin() {
@@ -23,7 +23,7 @@ async function readStdin() {
   }
   return Buffer.concat(chunks).toString("utf-8")
 }
-`
+`;
 
 export function generatePreToolUseHook(): string {
   return `#!/usr/bin/env node
@@ -74,7 +74,7 @@ async function main() {
 }
 
 main()
-`
+`;
 }
 
 export function generatePostToolUseHook(): string {
@@ -120,7 +120,7 @@ async function main() {
 }
 
 main()
-`
+`;
 }
 
 export function generatePostCommitHook(): string {
@@ -168,7 +168,7 @@ async function main() {
 }
 
 main()
-`
+`;
 }
 
 export function generateAllHooks(): Map<string, string> {
@@ -176,5 +176,5 @@ export function generateAllHooks(): Map<string, string> {
     ["pre-tool-use.mjs", generatePreToolUseHook()],
     ["post-tool-use.mjs", generatePostToolUseHook()],
     ["post-commit.mjs", generatePostCommitHook()],
-  ])
+  ]);
 }

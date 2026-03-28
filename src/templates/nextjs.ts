@@ -1,4 +1,4 @@
-import type { ContextTemplate } from "./registry.js"
+import type { ContextTemplate } from "./registry.js";
 
 export function nextjsTemplate(): ContextTemplate {
   return {
@@ -26,7 +26,8 @@ export function nextjsTemplate(): ContextTemplate {
       },
       {
         pattern: "app/**/page.tsx",
-        description: "Page component — server component by default, add 'use client' for client components",
+        description:
+          "Page component — server component by default, add 'use client' for client components",
         priority: "critical",
       },
       {
@@ -50,5 +51,5 @@ export function nextjsTemplate(): ContextTemplate {
         priority: "critical",
       },
     ],
-  }
+  };
 }

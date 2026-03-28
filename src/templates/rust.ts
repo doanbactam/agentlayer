@@ -1,4 +1,4 @@
-import type { ContextTemplate } from "./registry.js"
+import type { ContextTemplate } from "./registry.js";
 
 export function rustTemplate(): ContextTemplate {
   return {
@@ -38,5 +38,5 @@ export function rustTemplate(): ContextTemplate {
         priority: "low",
       },
     ],
-  }
+  };
 }

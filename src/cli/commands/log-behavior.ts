@@ -1,13 +1,13 @@
-import * as fs from "node:fs"
-import * as path from "node:path"
-import { resolve } from "node:path"
-import { ContextStore } from "../../store/schema.js"
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { resolve } from "node:path";
+import { ContextStore } from "../../store/schema.js";
 
 interface LogBehaviorOptions {
-  file?: string
-  tool?: string
-  event?: string
-  success?: string
+  file?: string;
+  tool?: string;
+  event?: string;
+  success?: string;
 }
 
 /**
@@ -16,50 +16,54 @@ interface LogBehaviorOptions {
  * Exits silently unless AGENTMIND_DEBUG is set.
  */
 export async function logBehavior(options: LogBehaviorOptions): Promise<void> {
-  const projectRoot = process.cwd()
-  const storePath = path.join(projectRoot, ".agentmind", "context.db")
+  const projectRoot = process.cwd();
+  const storePath = path.join(projectRoot, ".agentmind", "context.db");
 
   if (!fs.existsSync(storePath)) {
-    process.exit(0)
+    process.exit(0);
   }
 
-  const store = new ContextStore(projectRoot)
+  const store = new ContextStore(projectRoot);
 
   try {
-    const filePath = options.file ? resolve(projectRoot, options.file) : null
-    const success = options.success !== "false"
+    const filePath = options.file ? resolve(projectRoot, options.file) : null;
+    const success = options.success !== "false";
     const action = options.tool
       ? `tool:${options.tool}`
       : options.event
         ? options.event
-        : "unknown"
+        : "unknown";
 
     const metadata = JSON.stringify({
       tool: options.tool ?? null,
       event: options.event ?? null,
-    })
+    });
 
-    store.getDb().run(
-      "INSERT INTO behavior_log (agent_type, action, file_path, success, metadata) VALUES (?, ?, ?, ?, ?)",
-      [
-        options.event === "commit" ? "git" : "agent",
-        action,
-        filePath,
-        success ? 1 : 0,
-        metadata,
-      ]
-    )
+    store
+      .getDb()
+      .run(
+        "INSERT INTO behavior_log (agent_type, action, file_path, success, metadata) VALUES (?, ?, ?, ?, ?)",
+        [
+          options.event === "commit" ? "git" : "agent",
+          action,
+          filePath,
+          success ? 1 : 0,
+          metadata,
+        ],
+      );
 
     if (process.env.AGENTMIND_DEBUG) {
-      console.error(`[agentmind] logged behavior: ${action} on ${filePath ?? "(unknown)"} success=${success}`)
+      console.error(
+        `[agentmind] logged behavior: ${action} on ${filePath ?? "(unknown)"} success=${success}`,
+      );
     }
   } catch (error) {
     if (process.env.AGENTMIND_DEBUG) {
-      console.error("[agentmind] log-behavior error:", error)
+      console.error("[agentmind] log-behavior error:", error);
     }
   } finally {
-    store.close()
+    store.close();
   }
 
-  process.exit(0)
+  process.exit(0);
 }

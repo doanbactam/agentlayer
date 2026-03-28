@@ -1,4 +1,4 @@
-import type { ContextTemplate } from "./registry.js"
+import type { ContextTemplate } from "./registry.js";
 
 export function pythonTemplate(): ContextTemplate {
   return {
@@ -38,5 +38,5 @@ export function pythonTemplate(): ContextTemplate {
         priority: "high",
       },
     ],
-  }
+  };
 }

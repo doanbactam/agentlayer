@@ -3,20 +3,20 @@ export {
   generatePostToolUseHook,
   generatePostCommitHook,
   generateAllHooks,
-} from "./template.js"
+} from "./template.js";
 
 export {
   installClaudeHooks,
   uninstallClaudeHooks,
   getClaudeHookConfig,
   isClaudeHooksInstalled,
-} from "./claude.js"
+} from "./claude.js";
 
 export {
   installCodexHooks,
   uninstallCodexHooks,
   getCodexHookConfig,
   isCodexHooksInstalled,
-} from "./codex.js"
+} from "./codex.js";
 
-export type { HookConfig, HookEvent } from "../types/index.js"
+export type { HookConfig, HookEvent } from "../types/index.js";

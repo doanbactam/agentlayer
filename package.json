@@ -53,6 +53,8 @@
     "release:check": "npm run typecheck && npm test && npm run smoke && npm run pack:check",
     "smoke": "node dist/cli/index.js --help",
     "test": "node --test test/**/*.test.mjs",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit"
   },
@@ -71,6 +73,7 @@
     "@types/better-sqlite3": "^7.6.12",
     "@types/node": "^22.15.21",
     "eslint": "^9.39.4",
+    "prettier": "^3.8.1",
     "typescript": "^5.5.0",
     "typescript-eslint": "^8.57.2"
   }

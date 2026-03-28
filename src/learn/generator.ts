@@ -1,20 +1,22 @@
-import type { ContextStore } from "../store/schema.js"
-import type { LearnedRule } from "./analyzer.js"
-import type { Rule } from "../types/index.js"
+import type { ContextStore } from "../store/schema.js";
+import type { LearnedRule } from "./analyzer.js";
+import type { Rule } from "../types/index.js";
 
 export interface GeneratedRule {
-  filePath: string
-  rule: Rule
-  confidence: number
-  source: "learned"
+  filePath: string;
+  rule: Rule;
+  confidence: number;
+  source: "learned";
 }
 
 export function generateRules(learned: LearnedRule[]): GeneratedRule[] {
   return learned.map((l) => {
     const priority =
-      l.suggestedPriority === "critical" ? 90
-      : l.suggestedPriority === "high" ? 70
-      : 40
+      l.suggestedPriority === "critical"
+        ? 90
+        : l.suggestedPriority === "high"
+          ? 70
+          : 40;
 
     return {
       filePath: l.filePath,
@@ -27,34 +29,42 @@ export function generateRules(learned: LearnedRule[]): GeneratedRule[] {
       },
       confidence: l.confidence,
       source: "learned" as const,
-    }
-  })
+    };
+  });
 }
 
-export function applyRules(store: ContextStore, rules: GeneratedRule[]): number {
-  const db = store.getDb()
-  let applied = 0
+export function applyRules(
+  store: ContextStore,
+  rules: GeneratedRule[],
+): number {
+  const db = store.getDb();
+  let applied = 0;
 
   for (const gr of rules) {
-    const existing = db.query(
-      "SELECT COUNT(*) as c FROM context_entries WHERE file_path = ? AND source = 'learned'"
-    ).get(gr.filePath) as { c: number } | undefined
+    const existing = db
+      .query(
+        "SELECT COUNT(*) as c FROM context_entries WHERE file_path = ? AND source = 'learned'",
+      )
+      .get(gr.filePath) as { c: number } | undefined;
 
-    if (existing && existing.c > 0) continue
+    if (existing && existing.c > 0) continue;
 
-    const content = JSON.stringify(gr.rule)
+    const content = JSON.stringify(gr.rule);
     const priorityLabel =
-      gr.rule.priority >= 80 ? "critical"
-      : gr.rule.priority >= 60 ? "high"
-      : gr.rule.priority >= 30 ? "normal"
-      : "low"
+      gr.rule.priority >= 80
+        ? "critical"
+        : gr.rule.priority >= 60
+          ? "high"
+          : gr.rule.priority >= 30
+            ? "normal"
+            : "low";
 
     db.run(
       "INSERT INTO context_entries (file_path, type, content, scope, priority, source) VALUES (?, 'rule', ?, 'global', ?, 'learned')",
-      [gr.filePath, content, priorityLabel]
-    )
-    applied++
+      [gr.filePath, content, priorityLabel],
+    );
+    applied++;
   }
 
-  return applied
+  return applied;
 }

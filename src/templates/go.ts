@@ -1,4 +1,4 @@
-import type { ContextTemplate } from "./registry.js"
+import type { ContextTemplate } from "./registry.js";
 
 export function goTemplate(): ContextTemplate {
   return {
@@ -32,5 +32,5 @@ export function goTemplate(): ContextTemplate {
         priority: "high",
       },
     ],
-  }
+  };
 }
