@@ -171,7 +171,7 @@ export class ContextStore {
     const rows = query.all(...params) as BehaviorRow[]
     return rows.map((row) => {
       let meta: Record<string, unknown> = {}
-      try { meta = JSON.parse(row.metadata) } catch {}
+      try { meta = JSON.parse(row.metadata) } catch { /* use default */ }
       return {
         id: String(row.id),
         path: row.file_path ?? "",

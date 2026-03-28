@@ -117,7 +117,7 @@ export class AgentBridge {
     const raw = readFileSync(this.statePath, "utf-8")
     try {
       return JSON.parse(raw) as BridgeState
-    } catch (err) {
+    } catch {
       console.warn(
         `[agentmind] corrupt state file (${this.statePath}), treating as empty. Fix or delete the file.`
       )
@@ -141,18 +141,19 @@ export class AgentBridge {
         writeFileSync(this.tmpPath, json, "utf-8")
         renameSync(this.tmpPath, this.statePath)
         return
-      } catch (err) {
+      } catch {
         if (attempt === MAX_WRITE_RETRIES) {
           // rename can fail across drives; fall back to direct write
           try {
             writeFileSync(this.statePath, json, "utf-8")
           } finally {
-            try { unlinkSync(this.tmpPath) } catch {}
+            try { unlinkSync(this.tmpPath) } catch { /* best-effort cleanup */ }
           }
           return
         }
         // Brief pause before retry
-        Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, RETRY_DELAY_MS)
+        const end = Date.now() + RETRY_DELAY_MS
+        while (Date.now() < end) {}
       }
     }
   }

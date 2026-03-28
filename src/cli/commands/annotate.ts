@@ -53,99 +53,98 @@ export async function annotate(
     lineNumber = parsed
   }
 
-  // Show existing annotations for context
+  // Open store once for the entire operation
   const store = new ContextStore(cwd)
   try {
-    const existing = store.getEntries({ filePath: relativePath, type: "annotation" })
-    if (existing.length > 0) {
-      console.log(
-        chalk.cyan(`\n  Existing annotations for ${relativePath}:`)
-      )
-      for (const entry of existing) {
-        const ann = entry.annotations[0]
-        if (ann) {
-          const lineInfo = ann.line ? chalk.gray(`:${ann.line}`) : ""
-          console.log(chalk.gray(`    - ${ann.text}${lineInfo}`))
+    // Show existing annotations for context
+    try {
+      const existing = store.getEntries({ filePath: relativePath, type: "annotation" })
+      if (existing.length > 0) {
+        console.log(
+          chalk.cyan(`\n  Existing annotations for ${relativePath}:`)
+        )
+        for (const entry of existing) {
+          const ann = entry.annotations[0]
+          if (ann) {
+            const lineInfo = ann.line ? chalk.gray(`:${ann.line}`) : ""
+            console.log(chalk.gray(`    - ${ann.text}${lineInfo}`))
+          }
         }
+        console.log("")
       }
-      console.log("")
+    } catch {
+      // Store may be empty
     }
-  } catch {
-    // Store may be empty
-  }
-  store.close()
 
-  // Get annotation text
-  let annotationText = text
-  if (!annotationText) {
-    annotationText = await prompt("  Annotation: ")
-    if (!annotationText?.trim()) {
-      console.error(chalk.red("\n  No annotation text provided."))
-      console.error(chalk.gray("  Usage: agentmind annotate <file> <text>\n"))
-      process.exit(1)
+    // Get annotation text
+    let annotationText = text
+    if (!annotationText) {
+      annotationText = await prompt("  Annotation: ")
+      if (!annotationText?.trim()) {
+        console.error(chalk.red("\n  No annotation text provided."))
+        console.error(chalk.gray("  Usage: agentmind annotate <file> <text>\n"))
+        process.exit(1)
+      }
     }
-  }
 
-  // Get priority
-  const priorityInput = await prompt(
-    `  Priority ${chalk.gray("(critical/high/normal/low)")} [normal]: `
-  )
-  const priority = validatePriority(priorityInput?.trim() || "normal")
+    // Get priority
+    const priorityInput = await prompt(
+      `  Priority ${chalk.gray("(critical/high/normal/low)")} [normal]: `
+    )
+    const priority = validatePriority(priorityInput?.trim() || "normal")
 
-  // Create annotation
-  const annotation: Annotation = {
-    id: `ann-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    path: relativePath,
-    line: lineNumber,
-    text: annotationText.trim(),
-    author: "user",
-    created: Date.now(),
-  }
+    // Create annotation
+    const annotation: Annotation = {
+      id: `ann-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      path: relativePath,
+      line: lineNumber,
+      text: annotationText.trim(),
+      author: "user",
+      created: Date.now(),
+    }
 
-  // Save to store
-  const saveStore = new ContextStore(cwd)
-  try {
-    saveStore.addAnnotation(annotation)
+    // Save to store
+    store.addAnnotation(annotation)
 
     // Also save as meta for priority tracking
-    saveStore.setMeta(
+    store.setMeta(
       `priority:${annotation.id}`,
       priority
     )
-  } finally {
-    saveStore.close()
-  }
 
-  // Export to JSONL
-  const jsonlExportPath = path.join(agentmindDir, "context.jsonl")
-  try {
-    const entry = {
-      id: annotation.id,
-      path: relativePath,
-      classification: "source" as const,
-      rules: [],
-      annotations: [annotation],
-      behaviors: [],
-      lastScanned: Date.now(),
-      hash: "",
+    // Export to JSONL
+    const jsonlExportPath = path.join(agentmindDir, "context.jsonl")
+    try {
+      const entry = {
+        id: annotation.id,
+        path: relativePath,
+        classification: "source" as const,
+        rules: [],
+        annotations: [annotation],
+        behaviors: [],
+        lastScanned: Date.now(),
+        hash: "",
+      }
+      appendJSONL(jsonlExportPath, entry)
+    } catch {
+      // JSONL append failed - db is the source of truth
     }
-    appendJSONL(jsonlExportPath, entry)
-  } catch {
-    // JSONL append failed - db is the source of truth
-  }
 
-  // Success output
-  console.log("")
-  console.log(
-    chalk.green("  \u2713") +
-      ` Annotation saved for ${chalk.cyan(relativePath)}` +
-      (lineNumber ? chalk.gray(`:${lineNumber}`) : "")
-  )
-  console.log(chalk.gray(`    "${annotationText.trim()}"`))
-  console.log(
-    chalk.gray(`    Priority: ${priority}`)
-  )
-  console.log("")
+    // Success output
+    console.log("")
+    console.log(
+      chalk.green("  \u2713") +
+        ` Annotation saved for ${chalk.cyan(relativePath)}` +
+        (lineNumber ? chalk.gray(`:${lineNumber}`) : "")
+    )
+    console.log(chalk.gray(`    "${annotationText.trim()}"`))
+    console.log(
+      chalk.gray(`    Priority: ${priority}`)
+    )
+    console.log("")
+  } finally {
+    store.close()
+  }
 }
 
 function prompt(question: string): Promise<string> {

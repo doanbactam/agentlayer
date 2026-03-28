@@ -1,10 +1,15 @@
 import * as fs from "node:fs"
 import * as path from "node:path"
-import { fileURLToPath } from "node:url"
 import type { HookConfig } from "../types/index.js"
-import { generatePreToolUseHook, generatePostToolUseHook, generatePostCommitHook } from "./template.js"
+import {
+  getHookScript,
+  getNodeHookCommand,
+  writeAgentMindConfig,
+  ensureHooksDir,
+  writeHookScripts,
+  removeHookScripts,
+} from "./shared.js"
 
-const HOOKS_DIR = ".agentmind/hooks"
 const CODEX_CONFIG_DIR = ".codex"
 const CODEX_CONFIG_FILE = "config.json"
 
@@ -17,36 +22,16 @@ interface CodexConfig {
   [key: string]: unknown
 }
 
-function getAgentMindBin(): string {
-  if (process.env.AGENTMIND_DEV) {
-    return "agentmind"
+function readCodexConfig(configPath: string): CodexConfig {
+  if (!fs.existsSync(configPath)) return {}
+  try {
+    return JSON.parse(fs.readFileSync(configPath, "utf-8"))
+  } catch {
+    return {}
   }
-  return "agentmind"
 }
 
-function getHookScript(name: string): string {
-  return path.join(HOOKS_DIR, `${name}.mjs`)
-}
-
-function getNodeHookCommand(name: string): string {
-  return `node ${getHookScript(name)}`
-}
-
-function writeAgentMindConfig(projectRoot: string): void {
-  const cliEntry = path.resolve(
-    path.dirname(fileURLToPath(import.meta.url)),
-    "../cli/index.js",
-  )
-  const configPath = path.join(projectRoot, ".agentmind", "config.json")
-  const config = {
-    command: [process.execPath, cliEntry],
-  }
-
-  fs.mkdirSync(path.dirname(configPath), { recursive: true })
-  fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
-}
-
-export function getCodexHookConfig(agentMindBin: string): HookConfig[] {
+export function getCodexHookConfig(_agentMindBin: string): HookConfig[] {
   return [
     {
       agent: "codex",
@@ -63,33 +48,16 @@ export function getCodexHookConfig(agentMindBin: string): HookConfig[] {
   ]
 }
 
-export function installCodexHooks(projectRoot: string, agentMindBin?: string): void {
-  const hooksDir = path.join(projectRoot, HOOKS_DIR)
-  const codexDir = path.join(projectRoot, CODEX_CONFIG_DIR)
-
-  if (!fs.existsSync(hooksDir)) {
-    fs.mkdirSync(hooksDir, { recursive: true })
-  }
-  if (!fs.existsSync(codexDir)) {
-    fs.mkdirSync(codexDir, { recursive: true })
-  }
-
+export function installCodexHooks(projectRoot: string): void {
+  const hooksDir = ensureHooksDir(projectRoot)
   writeAgentMindConfig(projectRoot)
+  writeHookScripts(hooksDir)
 
-  fs.writeFileSync(path.join(hooksDir, "pre-tool-use.mjs"), generatePreToolUseHook())
-  fs.writeFileSync(path.join(hooksDir, "post-tool-use.mjs"), generatePostToolUseHook())
-  fs.writeFileSync(path.join(hooksDir, "post-commit.mjs"), generatePostCommitHook())
+  const codexDir = path.join(projectRoot, CODEX_CONFIG_DIR)
+  if (!fs.existsSync(codexDir)) fs.mkdirSync(codexDir, { recursive: true })
 
   const configPath = path.join(codexDir, CODEX_CONFIG_FILE)
-  let config: CodexConfig = {}
-
-  if (fs.existsSync(configPath)) {
-    try {
-      config = JSON.parse(fs.readFileSync(configPath, "utf-8"))
-    } catch {
-      config = {}
-    }
-  }
+  const config = readCodexConfig(configPath)
 
   config.hooks = {
     preToolUse: getNodeHookCommand("pre-tool-use"),
@@ -102,10 +70,7 @@ export function installCodexHooks(projectRoot: string, agentMindBin?: string): v
 
 export function uninstallCodexHooks(projectRoot: string): void {
   const configPath = path.join(projectRoot, CODEX_CONFIG_DIR, CODEX_CONFIG_FILE)
-
-  if (!fs.existsSync(configPath)) {
-    return
-  }
+  if (!fs.existsSync(configPath)) return
 
   let config: CodexConfig
   try {
@@ -118,32 +83,16 @@ export function uninstallCodexHooks(projectRoot: string): void {
     delete config.hooks.preToolUse
     delete config.hooks.postToolUse
     delete config.hooks.onFileChange
-
-    if (Object.keys(config.hooks).length === 0) {
-      delete config.hooks
-    }
+    if (Object.keys(config.hooks).length === 0) delete config.hooks
   }
 
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
-
-  const hooksDir = path.join(projectRoot, HOOKS_DIR)
-  if (fs.existsSync(hooksDir)) {
-    const hookFiles = ["pre-tool-use.mjs", "post-tool-use.mjs", "post-commit.mjs"]
-    for (const file of hookFiles) {
-      const filePath = path.join(hooksDir, file)
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath)
-      }
-    }
-  }
+  removeHookScripts(projectRoot)
 }
 
 export function isCodexHooksInstalled(projectRoot: string): boolean {
   const configPath = path.join(projectRoot, CODEX_CONFIG_DIR, CODEX_CONFIG_FILE)
-
-  if (!fs.existsSync(configPath)) {
-    return false
-  }
+  if (!fs.existsSync(configPath)) return false
 
   try {
     const config: CodexConfig = JSON.parse(fs.readFileSync(configPath, "utf-8"))

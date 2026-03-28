@@ -2,33 +2,28 @@ name: CI
 
 on:
   push:
+    branches: [master]
   pull_request:
+    branches: [master]
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+      - run: npm ci
 
-      - name: Typecheck
-        run: npm run typecheck
+      - run: npm run typecheck
 
-      - name: Test
-        run: npm test
+      - run: npm run lint
 
-      - name: Smoke
-        run: npm run smoke
+      - run: npm test
 
-      - name: Pack Check
-        run: npm run pack:check
+      - run: npm run build

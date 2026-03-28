@@ -1,12 +1,17 @@
 import { readFile } from "node:fs/promises"
+import { join } from "node:path"
 import type { DependencyGraph, DependencyNode, FileInfo } from "../types/index.js"
 
 // match static import/require paths
-const importRe = /(?:import\s+.*?from|require\s*\(\s*)['"]([^'"]+)['"]/g
+const importRe = /(?:import\s+.*?from\s+|require\s*\(\s*)['"]([^'"]+)['"]/g
 const dynamicImportRe = /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g
 const exportFromRe = /export\s+(?:\*|\{[^}]*\})\s+from\s+['"]([^'"]+)['"]/g
 
 const sourceExts = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".vue", ".svelte"])
+
+function norm(p: string): string {
+  return p.replace(/\\/g, "/")
+}
 
 function extractImports(content: string): string[] {
   const imports = new Set<string>()
@@ -25,7 +30,8 @@ function extractImports(content: string): string[] {
 
 // resolve relative import to file path
 function resolveImport(fromFile: string, spec: string, allFiles: Set<string>): string | null {
-  const dir = fromFile.includes("/") ? fromFile.slice(0, fromFile.lastIndexOf("/")) : ""
+  const normalized = norm(fromFile)
+  const dir = normalized.includes("/") ? normalized.slice(0, normalized.lastIndexOf("/")) : ""
   const parts = dir ? dir.split("/") : []
 
   for (const seg of spec.split("/")) {
@@ -50,14 +56,16 @@ function resolveImport(fromFile: string, spec: string, allFiles: Set<string>): s
 }
 
 export async function buildGraph(root: string, files: FileInfo[]): Promise<DependencyGraph> {
-  const allPaths = new Set(files.map(f => f.path))
+  // Normalize all paths to forward slashes for consistent resolution
+  const allPaths = new Set(files.map(f => norm(f.path)))
   const nodes = new Map<string, DependencyNode>()
 
   // init all nodes
   for (const f of files) {
-    const ext = f.path.slice(f.path.lastIndexOf("."))
+    const p = norm(f.path)
+    const ext = p.slice(p.lastIndexOf("."))
     if (!sourceExts.has(ext)) continue
-    nodes.set(f.path, { path: f.path, imports: [], importedBy: [] })
+    nodes.set(p, { path: p, imports: [], importedBy: [] })
   }
 
   // read + parse in chunks
@@ -69,7 +77,7 @@ export async function buildGraph(root: string, files: FileInfo[]): Promise<Depen
     const contents = await Promise.all(
       chunk.map(async (p) => {
         try {
-          return await readFile(`${root}/${p}`, "utf-8")
+          return await readFile(join(root, p), "utf-8")
         } catch {
           return null
         }

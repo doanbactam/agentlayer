@@ -83,7 +83,7 @@ export function createSyncAdapter(
     const start = existing.indexOf(SYNC_MARKER_START)
     const end = existing.indexOf(SYNC_MARKER_END) + SYNC_MARKER_END.length
 
-    let updated = (existing.slice(0, start) + existing.slice(end))
+    const updated = (existing.slice(0, start) + existing.slice(end))
       .replace(/\n{3,}/g, "\n\n")
       .trimEnd()
 
