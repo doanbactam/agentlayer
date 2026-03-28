@@ -1,6 +1,6 @@
 {
   "name": "@iamsyr/agentmind",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Intelligent context routing for AI coding agents",
   "license": "MIT",
   "author": "iamsyr",
@@ -48,6 +48,7 @@
     "pack:check": "npm pack --dry-run",
     "pretest": "npm run build",
     "prepack": "npm run build",
+    "prepublishOnly": "npm run release:check",
     "release:check": "npm run typecheck && npm test && npm run smoke && npm run pack:check",
     "smoke": "node dist/cli/index.js --help",
     "test": "node --test test/**/*.test.mjs",

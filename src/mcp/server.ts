@@ -4,7 +4,7 @@ import * as path from "node:path"
 import { ContextStore } from "../store/schema.js"
 import { route } from "../router/index.js"
 import { formatBytes, formatContext } from "../cli/utils.js"
-import type { ContextEntry, Annotation } from "../types/index.js"
+import type { BehaviorEntry, ContextEntry, Annotation } from "../types/index.js"
 
 // ── Tool definitions ───────────────────────────────────
 
@@ -270,16 +270,18 @@ function handleLogBehavior(args: Record<string, unknown>, store: ContextStore): 
     return "Error: success is required and must be a boolean."
   }
 
-  const filePath = args.filePath
-  const tool = args.tool
-  const success = args.success
+  const entry: BehaviorEntry = {
+    id: `mcp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    path: args.filePath,
+    pattern: args.tool,
+    description: `tool:${args.tool}`,
+    frequency: 1,
+    lastSeen: Date.now(),
+  }
 
-  store.getDb().run(
-    "INSERT INTO behavior_log (agent_type, action, file_path, success, metadata) VALUES (?, ?, ?, ?, ?)",
-    ["mcp", `tool:${tool}`, filePath, success ? 1 : 0, "{}"]
-  )
+  store.logBehavior(entry, args.success)
 
-  return `Behavior logged: ${tool} on ${filePath} (${success ? "success" : "failure"}).`
+  return `Behavior logged: ${args.tool} on ${args.filePath} (${args.success ? "success" : "failure"}).`
 }
 
 function handleFindGaps(args: Record<string, unknown>, store: ContextStore, projectRoot: string): string {

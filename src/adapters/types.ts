@@ -28,19 +28,8 @@ export const SYNC_MARKER_END = "<!-- agentmind:endsync -->"
 
 export function buildContext(store: ContextStore): AdapterContext {
   const entries = store.getEntries()
-  const patterns: NonInferablePattern[] = []
-
-  for (const entry of entries) {
-    for (const rule of entry.rules) {
-      patterns.push({
-        path: rule.path ?? rule.pattern,
-        pattern: rule.pattern,
-        reason: rule.description,
-      })
-    }
-  }
-
-  return { entries, patterns }
+  // Patterns are from scanner detection, not duplicated from rules
+  return { entries, patterns: [] }
 }
 
 export function createSyncAdapter(
