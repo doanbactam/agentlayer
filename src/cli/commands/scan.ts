@@ -6,12 +6,11 @@ import { scan as runFullScan } from "../../scanner/index.js";
 import { ContextStore } from "../../store/schema.js";
 import { exportJSONL } from "../../store/jsonl.js";
 import { buildEntries } from "../utils.js";
-import type { ScanResult, ContextEntry, Rule } from "../../types/index.js";
+import type { ScanResult, ContextEntry } from "../../types/index.js";
 
 export async function scan(opts: { force?: boolean; json?: boolean }) {
   const cwd = process.cwd();
   const agentmindDir = path.join(cwd, ".agentmind");
-  const dbPath = path.join(agentmindDir, "context.db");
   const jsonlPath = path.join(agentmindDir, "context.jsonl");
 
   if (!fs.existsSync(agentmindDir)) {

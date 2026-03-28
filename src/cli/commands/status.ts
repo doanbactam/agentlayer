@@ -25,7 +25,7 @@ export async function status() {
   let totalAnnotations = 0;
   let totalBehaviors = 0;
   let totalEntries = 0;
-  let filesWithoutContext: string[] = [];
+  const filesWithoutContext: string[] = [];
 
   let injectedSize = 0;
 

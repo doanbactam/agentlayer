@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { adapters, getAdapter, getAdapterNames } from "../../adapters/index.js";
+import { getAdapter, getAdapterNames } from "../../adapters/index.js";
 import { ContextStore } from "../../store/schema.js";
 
 export async function sync(opts: {

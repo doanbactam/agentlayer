@@ -1,5 +1,4 @@
 import chalk from "chalk";
-import { execSync } from "node:child_process";
 import { existsSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { ContextStore } from "../../store/schema.js";

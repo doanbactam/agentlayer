@@ -11,7 +11,6 @@ import type { ScanResult, FileClassification } from "../../types/index.js";
 export async function init() {
   const cwd = process.cwd();
   const agentmindDir = path.join(cwd, ".agentmind");
-  const dbPath = path.join(agentmindDir, "context.db");
   const jsonlPath = path.join(agentmindDir, "context.jsonl");
 
   const isProject = detectProject(cwd);
@@ -140,8 +139,7 @@ function detectProject(cwd: string): boolean {
   }
 
   // Check for source files
-  const sourcePatterns = ["*.{ts,js,tsx,jsx,py,go,rs,java}"];
-  for (const pattern of sourcePatterns) {
+  {
     const files = fs.readdirSync(cwd);
     if (files.some((f) => f.match(/\.(ts|js|tsx|jsx|py|go|rs|java)$/))) {
       return true;

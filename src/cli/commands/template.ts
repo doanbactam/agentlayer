@@ -125,11 +125,11 @@ async function applyAll(store: ContextStore, cwd: string): Promise<void> {
     );
 
     let totalRules = 0;
-    let totalMatches = 0;
     const allSkipped: string[] = [];
 
     for (const [name, result] of results) {
       const t = getTemplate(name)!;
+      void t;
       console.log(
         `  ${chalk.cyan(name.padEnd(15))} ${result.rulesAdded} rules added, ${result.patternsMatched} files matched`,
       );

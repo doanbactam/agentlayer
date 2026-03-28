@@ -187,9 +187,9 @@ const textExts = new Set([
 
 const contentPatterns: [RegExp, string, string][] = [
   [/@deprecated/, "deprecated", "Deprecated marker found"],
-  [/TODO\s*[\(:]/, "todo", "TODO comment found"],
-  [/FIXME\s*[\(:]/, "fixme", "FIXME comment found"],
-  [/HACK\s*[\(:]/, "hack", "HACK comment found"],
+  [/TODO\s*[(:]/, "todo", "TODO comment found"],
+  [/FIXME\s*[(:]/, "fixme", "FIXME comment found"],
+  [/HACK\s*[(:]/, "hack", "HACK comment found"],
   [/process\.platform/, "platform-check", "Platform-specific code detected"],
   [/process\.arch/, "platform-check", "Architecture-specific code detected"],
   [/docker|container/i, "docker-ref", "References Docker/container"],

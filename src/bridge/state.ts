@@ -157,7 +157,9 @@ export class AgentBridge {
         }
         // Brief pause before retry
         const end = Date.now() + RETRY_DELAY_MS;
-        while (Date.now() < end) {}
+        while (Date.now() < end) {
+          /* busy-wait */
+        }
       }
     }
   }
