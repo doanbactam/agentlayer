@@ -12,8 +12,9 @@ export async function pull(opts: { force?: boolean }): Promise<void> {
   const jsonlPath = join(root, ".agentmind", "context.jsonl")
 
   if (!existsSync(dbPath)) {
-    console.log(chalk.yellow("No agentmind store found. Run `agentmind init` first."))
-    return
+    console.error(chalk.red("\n  agentmind is not initialized in this project."))
+    console.error(chalk.gray("  Run `agentmind init` first.\n"))
+    process.exit(1)
   }
 
   // git pull first if in a git repo

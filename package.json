@@ -8,7 +8,8 @@
   "homepage": "https://github.com/doanbactam/agentmind#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/doanbactam/agentmind.git"
+    "url": "git+https://github.com/doanbactam/agentmind.git",
+    "directory": "."
   },
   "bugs": {
     "url": "https://github.com/doanbactam/agentmind/issues"

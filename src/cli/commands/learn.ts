@@ -3,7 +3,7 @@ import { existsSync } from "node:fs"
 import { join } from "node:path"
 import { ContextStore } from "../../store/schema.js"
 import { analyzeBehaviors, type LearnedRule } from "../../learn/analyzer.js"
-import { generateRules, applyRules, type GeneratedRule } from "../../learn/generator.js"
+import { generateRules, applyRules } from "../../learn/generator.js"
 
 interface LearnOptions {
   apply?: boolean
@@ -16,8 +16,9 @@ export async function learn(opts: LearnOptions): Promise<void> {
   const storePath = join(root, ".agentmind", "context.db")
 
   if (!existsSync(storePath)) {
-    console.log(chalk.yellow("No agentmind store found. Run `agentmind init` first."))
-    return
+    console.error(chalk.red("\n  agentmind is not initialized in this project."))
+    console.error(chalk.gray("  Run `agentmind init` first.\n"))
+    process.exit(1)
   }
 
   const store = new ContextStore(root)

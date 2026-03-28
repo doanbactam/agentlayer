@@ -36,8 +36,9 @@ export async function insights(opts: { json?: boolean }): Promise<void> {
   const storePath = join(root, ".agentmind", "context.db")
 
   if (!existsSync(storePath)) {
-    console.log(chalk.yellow("No agentmind store found. Run `agentmind init` first."))
-    return
+    console.error(chalk.red("\n  agentmind is not initialized in this project."))
+    console.error(chalk.gray("  Run `agentmind init` first.\n"))
+    process.exit(1)
   }
 
   const store = new ContextStore(root)
