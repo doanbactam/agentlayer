@@ -134,7 +134,7 @@ async function applyAll(store: ContextStore, cwd: string): Promise<void> {
         `  ${chalk.cyan(name.padEnd(15))} ${result.rulesAdded} rules added, ${result.patternsMatched} files matched`,
       );
       totalRules += result.rulesAdded;
-      totalMatches += result.patternsMatched;
+
       allSkipped.push(...result.skipped);
     }
 
