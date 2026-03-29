@@ -1,0 +1,21 @@
+{
+  "name": "agentmind-dev",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+  "features": {},
+  "postCreateCommand": "npm install",
+  "forwardPorts": [],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "typescript.tsdk": "node_modules/typescript/lib"
+      }
+    }
+  }
+}

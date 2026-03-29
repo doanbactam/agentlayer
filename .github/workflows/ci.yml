@@ -9,23 +9,59 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - run: npm run typecheck
+      - name: Type check
+        run: npm run typecheck
 
-      - run: npm run lint
+      - name: Lint
+        run: npm run lint
 
-      - run: npm test
+      - name: Scan TODO/FIXME without issue references
+        run: |
+          echo "Checking for TODO/FIXME comments without issue references..."
+          TODO_VIOLATIONS=$(grep -rn 'TODO\|FIXME' src/ --include='*.ts' | grep -v 'TODO(#' | grep -v 'TODO(https' || true)
+          if [ -n "$TODO_VIOLATIONS" ]; then
+            echo "::warning::Found TODO/FIXME without issue references:"
+            echo "$TODO_VIOLATIONS"
+          fi
 
-      - run: npm run format:check
+      - name: Run tests
+        run: npm test
 
-      - run: npm run build
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Build
+        run: npm run build
+
+      - name: Report build timing
+        if: always()
+        run: |
+          echo "## CI Step Timing" >> $GITHUB_STEP_SUMMARY
+          echo "| Step | Duration |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Completed CI | $(date -u +%H:%M:%S) UTC |" >> $GITHUB_STEP_SUMMARY
+
+  gitleaks:
+    name: Secret scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -13,6 +13,17 @@ export default tseslint.config(
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
+      "max-lines": ["warn", { max: 300, skipBlankLines: true, skipComments: true }],
+      complexity: ["warn", { max: 15 }],
+      "@typescript-eslint/naming-convention": [
+        "error",
+        { selector: "variable", format: ["camelCase", "UPPER_CASE", "PascalCase"] },
+        { selector: "function", format: ["camelCase", "PascalCase"] },
+        { selector: "parameter", format: ["camelCase"], leadingUnderscore: "allow" },
+        { selector: "typeLike", format: ["PascalCase"] },
+        { selector: "enumMember", format: ["UPPER_CASE"] },
+        { selector: "property", format: null, filter: { regex: "^(?!_).*", match: true } },
+      ],
     },
   },
 );

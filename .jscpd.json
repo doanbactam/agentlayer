@@ -1,0 +1,7 @@
+{
+  "threshold": 5,
+  "reporters": ["full"],
+  "format": "markdown",
+  "ignore": ["**/*.test.mjs", "test/**/*.mjs", "test/**/fixtures/**", "dist/**", "node_modules/**", "**/*.min.js", "**/*.map"],
+  "path": "src"
+}

@@ -34,3 +34,5 @@ export type {
   Rule,
   StoreHealth,
 } from "./types/index.js";
+export { logger } from "./logger.js";
+export type { LogLevel } from "./logger.js";
