@@ -106,9 +106,42 @@ async function main() {
     const toolName = resultInfo?.tool_name || "unknown"
     const success = !resultInfo?.tool_result?.error
     const command = getAgentMindCommand()
+    const args = [
+      ...command.slice(1),
+      "log-behavior",
+      "--file",
+      filePath,
+      "--tool",
+      toolName,
+      "--success",
+      String(success),
+      "--hook-phase",
+      "post-tool-use",
+    ]
+
+    const sessionId = typeof resultInfo?.session_id === "string" ? resultInfo.session_id : undefined
+    const agentId = typeof resultInfo?.agent_id === "string" ? resultInfo.agent_id : undefined
+    const toolCallId = typeof resultInfo?.tool_call_id === "string"
+      ? resultInfo.tool_call_id
+      : typeof resultInfo?.id === "string"
+        ? resultInfo.id
+        : undefined
+    const sourceTool = typeof resultInfo?.source_tool === "string" ? resultInfo.source_tool : undefined
+    const durationMs = typeof resultInfo?.duration_ms === "number"
+      ? resultInfo.duration_ms
+      : typeof resultInfo?.tool_result?.duration_ms === "number"
+        ? resultInfo.tool_result.duration_ms
+        : undefined
+
+    if (sessionId) args.push("--session-id", sessionId)
+    if (agentId) args.push("--agent-id", agentId)
+    if (toolCallId) args.push("--tool-call-id", toolCallId)
+    if (sourceTool) args.push("--source-tool", sourceTool)
+    if (durationMs != null) args.push("--duration-ms", String(durationMs))
+
     const child = spawn(
       command[0],
-      [...command.slice(1), "log-behavior", "--file", filePath, "--tool", toolName, "--success", String(success)],
+      args,
       { stdio: "ignore", detached: true }
     )
     child.unref()
@@ -153,9 +186,19 @@ async function main() {
 
     const command = getAgentMindCommand()
     for (const filePath of changedFiles) {
+      const args = [
+        ...command.slice(1),
+        "log-behavior",
+        "--file",
+        filePath,
+        "--event",
+        "commit",
+        "--hook-phase",
+        "post-commit",
+      ]
       const child = spawn(
         command[0],
-        [...command.slice(1), "log-behavior", "--file", filePath, "--event", "commit"],
+        args,
         { stdio: "ignore", detached: true }
       )
       child.unref()

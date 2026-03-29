@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { resolve } from "node:path";
+import { insertBehaviorLog } from "../../behavior/log.js";
 import { ContextStore } from "../../store/schema.js";
 
 interface LogBehaviorOptions {
@@ -8,6 +8,15 @@ interface LogBehaviorOptions {
   tool?: string;
   event?: string;
   success?: string;
+  traceId?: string;
+  spanId?: string;
+  parentSpanId?: string;
+  sessionId?: string;
+  agentId?: string;
+  toolCallId?: string;
+  sourceTool?: string;
+  hookPhase?: string;
+  durationMs?: string;
 }
 
 /**
@@ -26,35 +35,36 @@ export async function logBehavior(options: LogBehaviorOptions): Promise<void> {
   const store = new ContextStore(projectRoot);
 
   try {
-    const filePath = options.file ? resolve(projectRoot, options.file) : null;
     const success = options.success !== "false";
-    const action = options.tool
-      ? `tool:${options.tool}`
-      : options.event
-        ? options.event
-        : "unknown";
+    const durationMs =
+      options.durationMs != null && options.durationMs.length > 0
+        ? Number(options.durationMs)
+        : undefined;
 
-    const metadata = JSON.stringify({
-      tool: options.tool ?? null,
-      event: options.event ?? null,
+    insertBehaviorLog(store, {
+      projectRoot,
+      filePath: options.file,
+      tool: options.tool,
+      event: options.event,
+      success,
+      agentType: options.event === "commit" ? "git" : "agent",
+      traceId: options.traceId,
+      spanId: options.spanId,
+      parentSpanId: options.parentSpanId,
+      sessionId: options.sessionId,
+      agentId: options.agentId,
+      toolCallId: options.toolCallId,
+      sourceTool: options.sourceTool,
+      hookPhase: options.hookPhase,
+      durationMs:
+        durationMs != null && Number.isFinite(durationMs)
+          ? durationMs
+          : undefined,
     });
-
-    store
-      .getDb()
-      .run(
-        "INSERT INTO behavior_log (agent_type, action, file_path, success, metadata) VALUES (?, ?, ?, ?, ?)",
-        [
-          options.event === "commit" ? "git" : "agent",
-          action,
-          filePath,
-          success ? 1 : 0,
-          metadata,
-        ],
-      );
 
     if (process.env.AGENTMIND_DEBUG) {
       console.error(
-        `[agentmind] logged behavior: ${action} on ${filePath ?? "(unknown)"} success=${success}`,
+        `[agentmind] logged behavior: ${options.tool ?? options.event ?? "unknown"} on ${options.file ?? "(unknown)"} success=${success}`,
       );
     }
   } catch (error) {

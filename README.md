@@ -110,64 +110,64 @@ agentmind serve
 
 ### Core Commands
 
-| Command              | Description                                     | Options                    |
-|----------------------|-------------------------------------------------|----------------------------|
-| `init`               | Initialize agentmind in the project            | —                          |
-| `scan`               | Scan project files and build context map        | `-f, --force`, `--json`    |
-| `status`             | Show status and health overview                 | —                          |
-| `health`             | Dashboard with coverage, staleness, recs        | `--json`                   |
-| `annotate <path>`    | Add a context annotation to a file              | `-l, --line <number>`      |
+| Command           | Description                              | Options                 |
+| ----------------- | ---------------------------------------- | ----------------------- |
+| `init`            | Initialize agentmind in the project      | —                       |
+| `scan`            | Scan project files and build context map | `-f, --force`, `--json` |
+| `status`          | Show status and health overview          | —                       |
+| `health`          | Dashboard with coverage, staleness, recs | `--json`                |
+| `annotate <path>` | Add a context annotation to a file       | `-l, --line <number>`   |
 
 ### Agent Integration
 
-| Command              | Description                                     | Options                    |
-|----------------------|-------------------------------------------------|----------------------------|
-| `hooks <agent>`      | Install hooks for claude or codex               | —                          |
-| `unhook <agent>`     | Remove hooks                                    | —                          |
-| `serve`              | Start MCP server over stdio                     | —                          |
-| `inject [query]`     | Inject context into current agent session       | `-f, --file <path>`        |
+| Command          | Description                               | Options             |
+| ---------------- | ----------------------------------------- | ------------------- |
+| `hooks <agent>`  | Install hooks for claude or codex         | —                   |
+| `unhook <agent>` | Remove hooks                              | —                   |
+| `serve`          | Start MCP server over stdio               | —                   |
+| `inject [query]` | Inject context into current agent session | `-f, --file <path>` |
 
 ### Behavior & Insights
 
-| Command              | Description                                     | Options                    |
-|----------------------|-------------------------------------------------|----------------------------|
-| `behaviors`          | Show recent agent behavior log                  | `-n, --limit <number>`     |
-| `insights`           | Analyze patterns, find failure hotspots         | `--json`                   |
-| `learn`              | Auto-generate rules from behavior patterns      | `--apply`, `--force`       |
+| Command     | Description                                | Options                |
+| ----------- | ------------------------------------------ | ---------------------- |
+| `behaviors` | Show recent agent behavior log             | `-n, --limit <number>` |
+| `insights`  | Analyze patterns, find failure hotspots    | `--json`               |
+| `learn`     | Auto-generate rules from behavior patterns | `--apply`, `--force`   |
 
 ### Multi-Agent Bridge
 
-| Command                    | Description                                |
-|----------------------------|--------------------------------------------|
-| `bridge register`          | Register a new agent                       |
-| `bridge claim`             | Claim files for editing (lock)             |
-| `bridge release`           | Release claimed files                      |
-| `bridge status`            | Show bridge status                         |
-| `bridge conflicts`         | Show file conflicts                        |
-| `agents`                   | List active agents and conflicts           |
+| Command            | Description                      |
+| ------------------ | -------------------------------- |
+| `bridge register`  | Register a new agent             |
+| `bridge claim`     | Claim files for editing (lock)   |
+| `bridge release`   | Release claimed files            |
+| `bridge status`    | Show bridge status               |
+| `bridge conflicts` | Show file conflicts              |
+| `agents`           | List active agents and conflicts |
 
 ### Sync & Share
 
-| Command              | Description                                     | Options                         |
-|----------------------|-------------------------------------------------|---------------------------------|
-| `sync [tool]`        | Sync context to .cursorrules/.windsurfrules     | `--dry-run`                     |
-| `unsync [tool]`      | Remove from editor rule files                   | —                               |
-| `share`              | Export context snapshot                         | `-f json/md/curl`, `-o <file>`  |
-| `push`               | Commit context changes                          | `-m <msg>`, `--remote`          |
-| `pull`               | Pull remote context changes                     | `--force`                       |
+| Command         | Description                                 | Options                        |
+| --------------- | ------------------------------------------- | ------------------------------ |
+| `sync [tool]`   | Sync context to .cursorrules/.windsurfrules | `--dry-run`                    |
+| `unsync [tool]` | Remove from editor rule files               | —                              |
+| `share`         | Export context snapshot                     | `-f json/md/curl`, `-o <file>` |
+| `push`          | Commit context changes                      | `-m <msg>`, `--remote`         |
+| `pull`          | Pull remote context changes                 | `--force`                      |
 
 ### Templates
 
-| Command                     | Description                                |
-|-----------------------------|-------------------------------------------|
-| `template list`             | List available templates                  |
-| `template apply [name]`     | Apply a template to the project           |
+| Command                 | Description                     |
+| ----------------------- | ------------------------------- |
+| `template list`         | List available templates        |
+| `template apply [name]` | Apply a template to the project |
 
 ### Interactive
 
-| Command              | Description                                     | Options                    |
-|----------------------|-------------------------------------------------|----------------------------|
-| `overlay`            | Interactive annotation overlay                   | `--json`                   |
+| Command   | Description                    | Options  |
+| --------- | ------------------------------ | -------- |
+| `overlay` | Interactive annotation overlay | `--json` |
 
 ---
 
@@ -183,13 +183,14 @@ agentmind serve
 
 ### Available Tools
 
-| Tool              | Description                                              | Parameters                              |
-|-------------------|----------------------------------------------------------|----------------------------------------|
-| `get_context`     | Get project context for the current task                  | `filePath?`, `query?`                  |
-| `get_health`      | Check context health (coverage, staleness)                | —                                       |
-| `annotate_file`   | Add a context annotation to a file                        | `filePath`, `text`, `priority?`        |
-| `log_behavior`    | Log agent behavior (called automatically by hooks)        | `filePath`, `tool`, `success`          |
-| `find_gaps`       | Find files missing context annotations                    | `directory?`                           |
+| Tool            | Description                                        | Parameters                                     |
+| --------------- | -------------------------------------------------- | ---------------------------------------------- |
+| `get_context`   | Get project context for the current task           | `filePath?`, `query?`                          |
+| `get_claims`    | Get current file claims from bridge state          | `filePath?`, `includeInactive?`                |
+| `get_health`    | Check context health (coverage, staleness)         | —                                              |
+| `annotate_file` | Add a context annotation to a file                 | `filePath`, `text`, `priority?`                |
+| `log_behavior`  | Log agent behavior (called automatically by hooks) | `filePath`, `tool`, `success`, trace metadata? |
+| `find_gaps`     | Find files missing context annotations             | `directory?`                                   |
 
 ### Config for Claude Desktop
 
@@ -233,10 +234,10 @@ agentmind hooks codex
 
 ### Config Targets
 
-| Agent  | Config File                    |
-|--------|--------------------------------|
-| Claude | `.claude/settings.local.json`  |
-| Codex  | `.codex/config.json`           |
+| Agent  | Config File                   |
+| ------ | ----------------------------- |
+| Claude | `.claude/settings.local.json` |
+| Codex  | `.codex/config.json`          |
 
 ### Hook Behavior
 
@@ -307,7 +308,7 @@ import {
   classify,
   detectPatterns,
   buildGraph,
-} from "@iamsyr/agentmind"
+} from "@iamsyr/agentmind";
 
 // Types
 import type {
@@ -325,19 +326,19 @@ import type {
   Rule,
   ScanResult,
   StoreHealth,
-} from "@iamsyr/agentmind"
+} from "@iamsyr/agentmind";
 
 // Initialize store
-const store = new ContextStore("/path/to/project")
+const store = new ContextStore("/path/to/project");
 
 // Scan project
-const result: ScanResult = await scan("/path/to/project")
+const result: ScanResult = await scan("/path/to/project");
 
 // Export for git
-exportJSONL(store, ".agentmind/context.jsonl")
+exportJSONL(store, ".agentmind/context.jsonl");
 
 // Import from remote
-importJSONL(store, ".agentmind/context.jsonl")
+importJSONL(store, ".agentmind/context.jsonl");
 ```
 
 ---
@@ -348,14 +349,14 @@ Templates are pre-built context configurations for popular stacks.
 
 ### Available Templates
 
-| Template       | Detect Pattern          | Description                              |
-|----------------|-------------------------|------------------------------------------|
-| `nextjs`       | `next.config.*`         | Next.js app router, server components    |
-| `sst`          | `sst.config.*`          | SST serverless stack                     |
-| `react-native` | `app.json` + RN deps    | React Native mobile app                  |
-| `python`       | `requirements.txt`      | Python project patterns                  |
-| `go`           | `go.mod`                | Go module conventions                    |
-| `rust`         | `Cargo.toml`            | Rust project structure                   |
+| Template       | Detect Pattern       | Description                           |
+| -------------- | -------------------- | ------------------------------------- |
+| `nextjs`       | `next.config.*`      | Next.js app router, server components |
+| `sst`          | `sst.config.*`       | SST serverless stack                  |
+| `react-native` | `app.json` + RN deps | React Native mobile app               |
+| `python`       | `requirements.txt`   | Python project patterns               |
+| `go`           | `go.mod`             | Go module conventions                 |
+| `rust`         | `Cargo.toml`         | Rust project structure                |
 
 ### Usage
 
@@ -429,14 +430,14 @@ npm run release:check
 
 ### Scripts
 
-| Script            | Description                                |
-|-------------------|--------------------------------------------|
-| `build`           | Compile TypeScript → dist/                 |
-| `typecheck`       | Type check without emit                    |
-| `test`            | Run tests with Node test runner            |
-| `smoke`           | Verify CLI --help works                    |
-| `pack:check`      | npm pack --dry-run                         |
-| `release:check`   | Full check before npm publish              |
+| Script          | Description                     |
+| --------------- | ------------------------------- |
+| `build`         | Compile TypeScript → dist/      |
+| `typecheck`     | Type check without emit         |
+| `test`          | Run tests with Node test runner |
+| `smoke`         | Verify CLI --help works         |
+| `pack:check`    | npm pack --dry-run              |
+| `release:check` | Full check before npm publish   |
 
 ---
 

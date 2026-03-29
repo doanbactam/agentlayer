@@ -88,6 +88,15 @@ program
   .option("-t, --tool <name>", "Tool name")
   .option("-e, --event <name>", "Event type")
   .option("-s, --success <bool>", "Success status")
+  .option("--trace-id <id>", "Trace ID")
+  .option("--span-id <id>", "Span ID")
+  .option("--parent-span-id <id>", "Parent span ID")
+  .option("--session-id <id>", "Session ID")
+  .option("--agent-id <id>", "Agent ID")
+  .option("--tool-call-id <id>", "Tool call ID")
+  .option("--source-tool <name>", "Source tool name")
+  .option("--hook-phase <phase>", "Hook phase name")
+  .option("--duration-ms <ms>", "Tool duration in milliseconds")
   .action(logBehavior);
 
 program

@@ -1,14 +1,12 @@
 import * as readline from "node:readline";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { AgentBridge } from "../bridge/state.js";
+import { insertBehaviorLog } from "../behavior/log.js";
 import { ContextStore } from "../store/schema.js";
 import { route } from "../router/index.js";
 import { formatBytes, formatContext } from "../cli/utils.js";
-import type {
-  BehaviorEntry,
-  ContextEntry,
-  Annotation,
-} from "../types/index.js";
+import type { ContextEntry, Annotation } from "../types/index.js";
 
 // ── Tool definitions ───────────────────────────────────
 
@@ -27,6 +25,24 @@ const TOOLS = [
         query: {
           type: "string" as const,
           description: "Natural language query about the project",
+        },
+      },
+    },
+  },
+  {
+    name: "get_claims",
+    description:
+      "Get current file claims from the multi-agent bridge state. Returns which agents currently claim which files.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        filePath: {
+          type: "string" as const,
+          description: "Project-relative file path to inspect",
+        },
+        includeInactive: {
+          type: "boolean" as const,
+          description: "Include inactive claims that have timed out",
         },
       },
     },
@@ -64,6 +80,15 @@ const TOOLS = [
         filePath: { type: "string" as const },
         tool: { type: "string" as const },
         success: { type: "boolean" as const },
+        traceId: { type: "string" as const },
+        spanId: { type: "string" as const },
+        parentSpanId: { type: "string" as const },
+        sessionId: { type: "string" as const },
+        agentId: { type: "string" as const },
+        toolCallId: { type: "string" as const },
+        sourceTool: { type: "string" as const },
+        hookPhase: { type: "string" as const },
+        durationMs: { type: "number" as const },
       },
       required: ["filePath", "tool", "success"],
     },
@@ -203,12 +228,14 @@ function handleToolCall(
   switch (name) {
     case "get_context":
       return handleGetContext(args, store);
+    case "get_claims":
+      return handleGetClaims(args, projectRoot);
     case "get_health":
       return handleGetHealth(store);
     case "annotate_file":
       return handleAnnotateFile(args, store, projectRoot);
     case "log_behavior":
-      return handleLogBehavior(args, store);
+      return handleLogBehavior(args, store, projectRoot);
     case "find_gaps":
       return handleFindGaps(args, store, projectRoot);
     default:
@@ -270,6 +297,32 @@ function handleGetHealth(store: ContextStore): string {
   return lines.join("\n");
 }
 
+function handleGetClaims(
+  args: Record<string, unknown>,
+  projectRoot: string,
+): string {
+  if (args.filePath != null && typeof args.filePath !== "string") {
+    return "Error: filePath must be a string when provided.";
+  }
+  if (
+    args.includeInactive != null &&
+    typeof args.includeInactive !== "boolean"
+  ) {
+    return "Error: includeInactive must be a boolean when provided.";
+  }
+
+  const bridge = new AgentBridge(projectRoot);
+  const files = bridge.getClaimsSnapshot({
+    filePath: typeof args.filePath === "string" ? args.filePath : undefined,
+    includeInactive:
+      typeof args.includeInactive === "boolean"
+        ? args.includeInactive
+        : undefined,
+  });
+
+  return JSON.stringify({ files }, null, 2);
+}
+
 function handleAnnotateFile(
   args: Record<string, unknown>,
   store: ContextStore,
@@ -317,6 +370,7 @@ function handleAnnotateFile(
 function handleLogBehavior(
   args: Record<string, unknown>,
   store: ContextStore,
+  projectRoot: string,
 ): string {
   // Validate required parameters
   if (typeof args.filePath !== "string") {
@@ -329,16 +383,29 @@ function handleLogBehavior(
     return "Error: success is required and must be a boolean.";
   }
 
-  const entry: BehaviorEntry = {
-    id: `mcp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    path: args.filePath,
-    pattern: args.tool,
-    description: `tool:${args.tool}`,
-    frequency: 1,
-    lastSeen: Date.now(),
-  };
+  const optionalString = (value: unknown): string | undefined =>
+    typeof value === "string" && value.length > 0 ? value : undefined;
+  const durationMs =
+    typeof args.durationMs === "number" && Number.isFinite(args.durationMs)
+      ? args.durationMs
+      : undefined;
 
-  store.logBehavior(entry, args.success);
+  insertBehaviorLog(store, {
+    projectRoot,
+    filePath: args.filePath,
+    tool: args.tool,
+    success: args.success,
+    agentType: "auto",
+    traceId: optionalString(args.traceId),
+    spanId: optionalString(args.spanId),
+    parentSpanId: optionalString(args.parentSpanId),
+    sessionId: optionalString(args.sessionId),
+    agentId: optionalString(args.agentId),
+    toolCallId: optionalString(args.toolCallId),
+    sourceTool: optionalString(args.sourceTool),
+    hookPhase: optionalString(args.hookPhase),
+    durationMs,
+  });
 
   return `Behavior logged: ${args.tool} on ${args.filePath} (${args.success ? "success" : "failure"}).`;
 }
