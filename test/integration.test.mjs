@@ -143,11 +143,21 @@ function installFakeGit(root, mode) {
   );
   chmodSync(gitJsPath, 0o755);
 
-  writeFileSync(
-    path.join(binDir, "git.cmd"),
-    `@echo off\r\n"${process.execPath}" "%~dp0git.js" %*\r\n`,
-    "utf-8",
-  );
+  if (process.platform === "win32") {
+    writeFileSync(
+      path.join(binDir, "git.cmd"),
+      `@echo off\r\n"${process.execPath}" "%~dp0git.js" %*\r\n`,
+      "utf-8",
+    );
+  } else {
+    const gitWrapperPath = path.join(binDir, "git");
+    writeFileSync(
+      gitWrapperPath,
+      `#!/bin/sh\nexec "${process.execPath}" "${gitJsPath}" "$@"\n`,
+      "utf-8",
+    );
+    chmodSync(gitWrapperPath, 0o755);
+  }
 
   const pathKey = process.platform === "win32" ? "Path" : "PATH";
   const currentPath = process.env[pathKey] ?? process.env.PATH ?? "";
