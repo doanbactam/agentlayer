@@ -1,14 +1,10 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  generatePreToolUseHook,
-  generatePostToolUseHook,
-  generatePostCommitHook,
-} from "./template.js";
+import { generatePostToolUseHook, generatePostCommitHook } from "./template.js";
 
 const HOOKS_DIR = ".agentmind/hooks";
-const HOOK_FILES = ["pre-tool-use.mjs", "post-tool-use.mjs", "post-commit.mjs"];
+const HOOK_FILES = ["post-tool-use.mjs", "post-commit.mjs"];
 
 export function getHookScript(name: string): string {
   return path.join(HOOKS_DIR, `${name}.mjs`);
@@ -41,10 +37,6 @@ export function ensureHooksDir(projectRoot: string): string {
 }
 
 export function writeHookScripts(hooksDir: string): void {
-  fs.writeFileSync(
-    path.join(hooksDir, "pre-tool-use.mjs"),
-    generatePreToolUseHook(),
-  );
   fs.writeFileSync(
     path.join(hooksDir, "post-tool-use.mjs"),
     generatePostToolUseHook(),

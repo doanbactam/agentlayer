@@ -3,6 +3,6 @@ dist
 .agentmind/context.db
 .agentmind/config.json
 .agentmind/hooks/
-coverage/
 .eslintcache
 *.js.map
+nul

@@ -3,9 +3,12 @@ import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
 import { ContextStore } from "../../store/schema.js";
-import { classify } from "../../scanner/classify.js";
 import { appendJSONL } from "../../store/jsonl.js";
-import { formatBytes as formatSize, validatePriority } from "../utils.js";
+import {
+  collectProjectFiles,
+  formatBytes as formatSize,
+  validatePriority,
+} from "../utils.js";
 import type { Annotation, FileClassification } from "../../types/index.js";
 
 interface FileGap {
@@ -43,7 +46,7 @@ export async function overlay(opts: OverlayOptions = {}) {
   console.log(chalk.gray("  Scanning for context gaps..."));
 
   // Get all files from scanner
-  const { files, classifications } = await classify(cwd);
+  const { files, classifications } = collectProjectFiles(cwd);
 
   // Get existing context from store
   const store = new ContextStore(cwd);

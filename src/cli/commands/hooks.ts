@@ -19,7 +19,6 @@ export async function hooks(agent: string): Promise<void> {
 
     installClaudeHooks(projectRoot);
     console.log("✓ Claude Code hooks installed");
-    console.log("  - Pre-tool-use: injects context before file operations");
     console.log("  - Post-tool-use: logs behavior after edits");
     console.log("  - Post-commit: records file changes");
     console.log("\nHooks are configured in .claude/settings.local.json");
@@ -34,7 +33,6 @@ export async function hooks(agent: string): Promise<void> {
 
     installCodexHooks(projectRoot);
     console.log("✓ Codex CLI hooks installed");
-    console.log("  - Pre-tool-use: injects context before file operations");
     console.log("  - Post-tool-use: logs behavior after edits");
     console.log("\nHooks are configured in .codex/config.json");
     return;

@@ -2,11 +2,9 @@
 
 import { Command } from "commander";
 import { init } from "./commands/init.js";
-import { scan } from "./commands/scan.js";
 import { status } from "./commands/status.js";
 import { annotate } from "./commands/annotate.js";
 import { hooks, unhook } from "./commands/hooks.js";
-import { inject } from "./commands/inject.js";
 import { logBehavior } from "./commands/log-behavior.js";
 import { showBehaviors } from "./commands/behaviors.js";
 import { insights } from "./commands/insights.js";
@@ -19,14 +17,12 @@ import {
   bridgeStatus,
   conflicts,
 } from "./commands/bridge.js";
-import { sync } from "./commands/sync.js";
 import { share } from "./commands/share.js";
 import { health } from "./commands/health.js";
 import { overlay } from "./commands/overlay.js";
 import { push } from "./commands/push.js";
 import { pull } from "./commands/pull.js";
 import { serve } from "./commands/serve.js";
-import { templateList, templateApply } from "./commands/template.js";
 
 const program = new Command();
 
@@ -39,13 +35,6 @@ program
   .command("init")
   .description("Initialize agentmind in the current project")
   .action(init);
-
-program
-  .command("scan")
-  .description("Scan project files and build context map")
-  .option("-f, --force", "Force full rescan")
-  .option("--json", "Output as JSON")
-  .action(scan);
 
 program
   .command("status")
@@ -73,13 +62,6 @@ program
   .description("Install hooks for an AI agent")
   .argument("<agent>", "Agent to install hooks for (claude|codex)")
   .action(hooks);
-
-program
-  .command("inject")
-  .description("Inject context into current agent session")
-  .argument("[query]", "Query to route context for")
-  .option("-f, --file <path>", "Get context for a specific file")
-  .action(inject);
 
 program
   .command("log-behavior", { hidden: true })
@@ -166,23 +148,6 @@ program
   );
 
 program
-  .command("sync")
-  .description(
-    "Sync context to editor rule files (.cursorrules, .windsurfrules)",
-  )
-  .argument("[tool]", "Target tool (cursor, windsurf). Default: all")
-  .option("--dry-run", "Preview without writing files")
-  .action((tool, opts) =>
-    sync({ tool: tool ?? opts.tool, dryRun: opts.dryRun }),
-  );
-
-program
-  .command("unsync")
-  .description("Remove agentmind context from editor rule files")
-  .argument("[tool]", "Target tool (cursor, windsurf). Default: all")
-  .action((tool) => sync({ tool: tool ?? undefined, remove: true }));
-
-program
   .command("share")
   .description("Export context snapshot")
   .option(
@@ -216,21 +181,5 @@ program
   .command("serve")
   .description("Start MCP server for agent integration")
   .action(serve);
-
-program
-  .command("template")
-  .description("Manage pre-built context templates for popular stacks")
-  .addCommand(
-    new Command("list")
-      .description("Show available templates")
-      .action(templateList),
-  )
-  .addCommand(
-    new Command("apply")
-      .description("Apply a template to the current project")
-      .argument("[name]", "Template name to apply")
-      .option("--all", "Auto-detect and apply matching templates")
-      .action(templateApply),
-  );
 
 program.parse();

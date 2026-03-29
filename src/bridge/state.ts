@@ -33,7 +33,7 @@ interface BridgeState {
   agents: Record<string, AgentActivity>;
 }
 
-const HEARTBEAT_TIMEOUT_MS = 30_000;
+const HEARTBEAT_TIMEOUT_MS = 300_000;
 
 const MAX_WRITE_RETRIES = 3;
 const RETRY_DELAY_MS = 50;

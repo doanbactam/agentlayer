@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import fs from "node:fs";
 import path from "node:path";
-import { classify } from "../../scanner/classify.js";
 import { ContextStore } from "../../store/schema.js";
+import { collectProjectFiles } from "../utils.js";
 import type { FileClassification, FileInfo } from "../../types/index.js";
 
 // ── Types ──────────────────────────────────────────────
@@ -63,14 +63,14 @@ export async function health(opts: { json?: boolean }): Promise<void> {
 
   if (!fs.existsSync(dbPath)) {
     console.error(
-      chalk.yellow("\n  No context store found. Run `agentmind scan` first.\n"),
+      chalk.yellow("\n  No context store found. Run `agentmind init` first.\n"),
     );
     process.exit(1);
   }
 
   const store = new ContextStore(cwd);
   const db = store.getDb();
-  const scan = await classify(cwd);
+  const scan = collectProjectFiles(cwd);
 
   const data: HealthData = {
     dirCoverage: [],

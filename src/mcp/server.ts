@@ -4,7 +4,6 @@ import * as path from "node:path";
 import { AgentBridge } from "../bridge/state.js";
 import { insertBehaviorLog } from "../behavior/log.js";
 import { ContextStore } from "../store/schema.js";
-import { route } from "../router/index.js";
 import { formatBytes, formatContext } from "../cli/utils.js";
 import type { ContextEntry, Annotation } from "../types/index.js";
 
@@ -189,7 +188,7 @@ function dispatch(
       return reply({
         protocolVersion: "2024-11-05",
         capabilities: { tools: {} },
-        serverInfo: { name: "agentmind", version: "0.1.0" },
+        serverInfo: { name: "agentmind", version: "0.2.0" },
       });
 
     case "ping":
@@ -256,8 +255,7 @@ function handleGetContext(
   if (filePath) {
     entries = store.queryContext({ filePath });
   } else if (query) {
-    const all = store.getEntries();
-    entries = route(query, all);
+    entries = store.getEntries();
   } else {
     entries = store.getEntries({ scope: "global" });
   }
@@ -284,14 +282,16 @@ function handleGetHealth(store: ContextStore): string {
   ];
 
   if (h.staleEntries > 0)
-    lines.push("- Consider running `agentmind scan` to refresh stale entries.");
+    lines.push(
+      "- Consider refreshing annotations/rules for stale files in `.agentmind/context.db`.",
+    );
   if (orphans > 0)
     lines.push(
       "- Some rules reference files with no annotations — use `find_gaps` to see them.",
     );
   if (h.entries === 0)
     lines.push(
-      "- No context stored yet. Run `agentmind scan` and annotate key files.",
+      "- No context stored yet. Add annotations or rules to build project context.",
     );
 
   return lines.join("\n");
@@ -455,7 +455,7 @@ function ensureStore(projectRoot: string): ContextStore | null {
   const dbPath = path.join(projectRoot, ".agentmind", "context.db");
   if (!fs.existsSync(dbPath)) {
     log(
-      `No .agentmind/context.db found in ${projectRoot}. Run 'agentmind init && agentmind scan' first.`,
+      `No .agentmind/context.db found in ${projectRoot}. Run 'agentmind init' first.`,
     );
     return null;
   }

@@ -15,7 +15,6 @@ const CODEX_CONFIG_FILE = "config.json";
 
 interface CodexConfig {
   hooks?: {
-    preToolUse?: string;
     postToolUse?: string;
     onFileChange?: string;
   };
@@ -33,12 +32,6 @@ function readCodexConfig(configPath: string): CodexConfig {
 
 export function getCodexHookConfig(_agentMindBin: string): HookConfig[] {
   return [
-    {
-      agent: "codex",
-      events: [{ type: "pre_prompt", filter: "read|edit|write" }],
-      script: getHookScript("pre-tool-use"),
-      enabled: true,
-    },
     {
       agent: "codex",
       events: [{ type: "post_response", filter: "edit|write" }],
@@ -60,7 +53,6 @@ export function installCodexHooks(projectRoot: string): void {
   const config = readCodexConfig(configPath);
 
   config.hooks = {
-    preToolUse: getNodeHookCommand("pre-tool-use"),
     postToolUse: getNodeHookCommand("post-tool-use"),
     onFileChange: getNodeHookCommand("post-commit"),
   };
@@ -84,7 +76,6 @@ export function uninstallCodexHooks(projectRoot: string): void {
   }
 
   if (config.hooks) {
-    delete config.hooks.preToolUse;
     delete config.hooks.postToolUse;
     delete config.hooks.onFileChange;
     if (Object.keys(config.hooks).length === 0) delete config.hooks;
@@ -106,7 +97,7 @@ export function isCodexHooksInstalled(projectRoot: string): boolean {
     const config: CodexConfig = JSON.parse(
       fs.readFileSync(configPath, "utf-8"),
     );
-    return !!config.hooks?.preToolUse?.includes("pre-tool-use.mjs");
+    return !!config.hooks?.postToolUse?.includes("post-tool-use.mjs");
   } catch {
     return false;
   }

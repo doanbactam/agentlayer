@@ -1,5 +1,4 @@
 export {
-  generatePreToolUseHook,
   generatePostToolUseHook,
   generatePostCommitHook,
   generateAllHooks,

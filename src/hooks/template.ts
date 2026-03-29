@@ -25,58 +25,6 @@ async function readStdin() {
 }
 `;
 
-export function generatePreToolUseHook(): string {
-  return `#!/usr/bin/env node
-import { existsSync } from "node:fs"
-import { spawn } from "node:child_process"
-${CONFIG_READER}
-${STDIN_READER}
-
-async function main() {
-  try {
-    const input = await readStdin()
-    if (!input.trim()) {
-      process.exit(0)
-    }
-
-    let toolInfo
-    try {
-      toolInfo = JSON.parse(input)
-    } catch {
-      process.exit(0)
-    }
-
-    const filePath = toolInfo?.tool_input?.file_path || toolInfo?.tool_input?.path
-    if (!filePath || !existsSync(".agentmind/context.db")) {
-      process.exit(0)
-    }
-
-    const command = getAgentMindCommand()
-    const child = spawn(command[0], [...command.slice(1), "inject", "--file", filePath], {
-      stdio: ["ignore", "pipe", "pipe"],
-    })
-
-    let stdout = ""
-    for await (const chunk of child.stdout) {
-      stdout += chunk.toString()
-    }
-
-    await new Promise((resolve) => child.on("close", resolve))
-
-    if (stdout.trim()) {
-      process.stdout.write(stdout)
-    }
-  } catch (error) {
-    if (process.env.AGENTMIND_DEBUG) {
-      console.error("[agentmind hook error]", error)
-    }
-  }
-}
-
-main()
-`;
-}
-
 export function generatePostToolUseHook(): string {
   return `#!/usr/bin/env node
 import { existsSync } from "node:fs"
@@ -216,7 +164,6 @@ main()
 
 export function generateAllHooks(): Map<string, string> {
   return new Map([
-    ["pre-tool-use.mjs", generatePreToolUseHook()],
     ["post-tool-use.mjs", generatePostToolUseHook()],
     ["post-commit.mjs", generatePostCommitHook()],
   ]);

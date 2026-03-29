@@ -11,11 +11,7 @@ import {
 } from "./shared.js";
 
 const SETTINGS_FILE = ".claude/settings.local.json";
-const HOOK_MARKERS = [
-  "pre-tool-use.mjs",
-  "post-tool-use.mjs",
-  "post-commit.mjs",
-];
+const HOOK_MARKERS = ["post-tool-use.mjs", "post-commit.mjs"];
 
 interface ClaudeHook {
   matcher: string;
@@ -24,7 +20,6 @@ interface ClaudeHook {
 
 interface ClaudeSettings {
   hooks?: {
-    PreToolUse?: ClaudeHook[];
     PostToolUse?: ClaudeHook[];
     PostCommit?: ClaudeHook[];
   };
@@ -53,12 +48,6 @@ export function getClaudeHookConfig(_agentMindBin: string): HookConfig[] {
   return [
     {
       agent: "claude",
-      events: [{ type: "pre_prompt", filter: "Read|Edit|Write" }],
-      script: getHookScript("pre-tool-use"),
-      enabled: true,
-    },
-    {
-      agent: "claude",
       events: [{ type: "post_response", filter: "Edit|Write" }],
       script: getHookScript("post-tool-use"),
       enabled: true,
@@ -80,12 +69,6 @@ export function installClaudeHooks(projectRoot: string): void {
   const settingsPath = path.join(projectRoot, SETTINGS_FILE);
   const settings = readClaudeSettings(settingsPath);
   if (!settings.hooks) settings.hooks = {};
-
-  if (!settings.hooks.PreToolUse) settings.hooks.PreToolUse = [];
-  upsertHook(settings.hooks.PreToolUse, {
-    matcher: "Read|Edit|Write",
-    hooks: [getNodeHookCommand("pre-tool-use")],
-  });
 
   if (!settings.hooks.PostToolUse) settings.hooks.PostToolUse = [];
   upsertHook(settings.hooks.PostToolUse, {
@@ -128,7 +111,7 @@ export function uninstallClaudeHooks(projectRoot: string): void {
 
   if (!settings.hooks) return;
 
-  for (const key of ["PreToolUse", "PostToolUse", "PostCommit"] as const) {
+  for (const key of ["PostToolUse", "PostCommit"] as const) {
     if (!settings.hooks[key]) continue;
     settings.hooks[key] = filterAgentmindHooks(settings.hooks[key]);
     if (settings.hooks[key]!.length === 0) delete settings.hooks[key];
@@ -142,7 +125,7 @@ export function uninstallClaudeHooks(projectRoot: string): void {
 
 export function isClaudeHooksInstalled(projectRoot: string): boolean {
   const hooksDir = path.join(projectRoot, ".agentmind/hooks");
-  if (!fs.existsSync(path.join(hooksDir, "pre-tool-use.mjs"))) return false;
+  if (!fs.existsSync(path.join(hooksDir, "post-tool-use.mjs"))) return false;
 
   const settingsPath = path.join(projectRoot, SETTINGS_FILE);
   try {
@@ -150,7 +133,7 @@ export function isClaudeHooksInstalled(projectRoot: string): boolean {
       fs.readFileSync(settingsPath, "utf-8"),
     );
     return (
-      settings.hooks?.PreToolUse?.some((h) =>
+      settings.hooks?.PostToolUse?.some((h) =>
         h.hooks.some((hook) => HOOK_MARKERS.some((m) => hook.includes(m))),
       ) ?? false
     );
